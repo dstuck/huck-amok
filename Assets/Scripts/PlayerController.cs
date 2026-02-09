@@ -28,6 +28,7 @@ public class PlayerController : MonoBehaviour, InputSystem_Actions.IPlayerAction
     private bool isCarrying = false;
     private Collider2D playerCollider;
     private SpriteRenderer playerSpriteRenderer;
+    private PlayerAnimator playerAnimator;
     
     // Animation hooks
     public System.Action<Direction> OnFacingDirectionChanged;
@@ -42,11 +43,23 @@ public class PlayerController : MonoBehaviour, InputSystem_Actions.IPlayerAction
         inputActions.Player.SetCallbacks(this);
         playerCollider = GetComponent<Collider2D>();
         playerSpriteRenderer = GetComponent<SpriteRenderer>();
+        playerAnimator = GetComponent<PlayerAnimator>();
     }
     
     private void OnEnable()
     {
         inputActions.Player.Enable();
+    }
+    
+    private void Start()
+    {
+        // Initialize animator with current state
+        if (playerAnimator != null)
+        {
+            playerAnimator.OnDirectionChanged(currentFacing);
+            playerAnimator.OnCarryingStateChanged(isCarrying);
+            playerAnimator.OnMovementStateChanged(false);
+        }
     }
     
     private void OnDisable()
@@ -62,7 +75,9 @@ public class PlayerController : MonoBehaviour, InputSystem_Actions.IPlayerAction
     
     private void HandleMovement()
     {
-        if (moveInput.magnitude > 0.1f)
+        bool wasMoving = moveInput.magnitude > 0.1f;
+        
+        if (wasMoving)
         {
             // Move the player
             Vector2 movement = moveInput.normalized * moveSpeed * Time.deltaTime;
@@ -74,7 +89,16 @@ public class PlayerController : MonoBehaviour, InputSystem_Actions.IPlayerAction
             {
                 currentFacing = newFacing;
                 OnFacingDirectionChanged?.Invoke(currentFacing);
+                playerAnimator?.OnDirectionChanged(currentFacing);
             }
+            
+            // Notify animator that we're moving
+            playerAnimator?.OnMovementStateChanged(true);
+        }
+        else
+        {
+            // Notify animator that we've stopped moving
+            playerAnimator?.OnMovementStateChanged(false);
         }
     }
     
@@ -244,6 +268,7 @@ public class PlayerController : MonoBehaviour, InputSystem_Actions.IPlayerAction
         // Immediately position the slime at the held position
         UpdateHeldObjectPosition();
         OnCarryingStateChanged?.Invoke(true);
+        playerAnimator?.OnCarryingStateChanged(true);
     }
     
     private void ThrowHeldObject()
@@ -260,6 +285,7 @@ public class PlayerController : MonoBehaviour, InputSystem_Actions.IPlayerAction
         heldSlime = null;
         isCarrying = false;
         OnCarryingStateChanged?.Invoke(false);
+        playerAnimator?.OnCarryingStateChanged(false);
     }
     
     private Vector2 GetThrowStartPosition()

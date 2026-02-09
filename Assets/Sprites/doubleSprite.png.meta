@@ -1,13 +1,19 @@
 fileFormatVersion: 2
-guid: c3696510dd5a74bd583d2f28f4384ec1
+guid: c6c5320ea3a3e4ce381965908f200553
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -8943810152757668103
-    second: sprZinkCarryN_0
+      213: -2490191300240213547
+    second: doubleSprite_0
   - first:
-      213: 3965258580601535431
-    second: sprZinkCarryN_1
+      213: 136906663704623072
+    second: doubleSprite_1
+  - first:
+      213: -7545557624716020041
+    second: doubleSprite_2
+  - first:
+      213: 4169359422347663551
+    second: doubleSprite_3
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -116,45 +122,89 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: sprZinkCarryN_0
+      name: doubleSprite_0
       rect:
         serializedVersion: 2
-        x: 15
-        y: 15
-        width: 18
-        height: 18
-      alignment: 7
-      pivot: {x: 0.5, y: 0}
+        x: 0
+        y: 1
+        width: 16
+        height: 20
+      alignment: 0
+      pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 9f6d85a6d0431e380800000000000000
-      internalID: -8943810152757668103
+      spriteID: 5d9f96eb430117dd0800000000000000
+      internalID: -2490191300240213547
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: sprZinkCarryN_1
+      name: doubleSprite_1
       rect:
         serializedVersion: 2
-        x: 63
-        y: 15
-        width: 18
-        height: 18
-      alignment: 7
-      pivot: {x: 0.5, y: 0}
+        x: 16
+        y: 1
+        width: 16
+        height: 21
+      alignment: 0
+      pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 7cbf2539bad670730800000000000000
-      internalID: 3965258580601535431
+      spriteID: 0e77f71a2e366e100800000000000000
+      internalID: 136906663704623072
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: doubleSprite_2
+      rect:
+        serializedVersion: 2
+        x: 32
+        y: 1
+        width: 16
+        height: 21
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7b6bf82815bc84790800000000000000
+      internalID: -7545557624716020041
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: doubleSprite_3
+      rect:
+        serializedVersion: 2
+        x: 48
+        y: 1
+        width: 16
+        height: 21
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: fb8d5fded4a8cd930800000000000000
+      internalID: 4169359422347663551
       vertices: []
       indices: 
       edges: []
@@ -163,7 +213,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 90d7fdbacf81549f98cccbc5e01dc300
+    spriteID: 
     internalID: 0
     vertices: []
     indices: 
@@ -173,8 +223,10 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      sprZinkCarryN_0: -8943810152757668103
-      sprZinkCarryN_1: 3965258580601535431
+      doubleSprite_0: -2490191300240213547
+      doubleSprite_1: 136906663704623072
+      doubleSprite_2: -7545557624716020041
+      doubleSprite_3: 4169359422347663551
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
