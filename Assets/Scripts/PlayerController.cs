@@ -75,15 +75,11 @@ public class PlayerController : MonoBehaviour, InputSystem_Actions.IPlayerAction
     
     private void HandleMovement()
     {
-        bool wasMoving = moveInput.magnitude > 0.1f;
-        
-        if (wasMoving)
+        bool isMoving = moveInput.magnitude > 0.1f;
+
+        // Update facing from input even before movement threshold (static direction while idle)
+        if (moveInput.sqrMagnitude > 0.01f)
         {
-            // Move the player
-            Vector2 movement = moveInput.normalized * moveSpeed * Time.deltaTime;
-            transform.Translate(movement);
-            
-            // Update facing direction (snap to N/S/E/W)
             Direction newFacing = GetDirectionFromVector(moveInput);
             if (newFacing != currentFacing)
             {
@@ -91,13 +87,21 @@ public class PlayerController : MonoBehaviour, InputSystem_Actions.IPlayerAction
                 OnFacingDirectionChanged?.Invoke(currentFacing);
                 playerAnimator?.OnDirectionChanged(currentFacing);
             }
-            
-            // Notify animator that we're moving
+        }
+        
+        if (isMoving)
+        {
+            // Move the player
+            Vector2 movement = moveInput.normalized * moveSpeed * Time.deltaTime;
+            transform.Translate(movement);
+        }
+        
+        if (isMoving)
+        {
             playerAnimator?.OnMovementStateChanged(true);
         }
         else
         {
-            // Notify animator that we've stopped moving
             playerAnimator?.OnMovementStateChanged(false);
         }
     }

@@ -240,9 +240,9 @@ For each Animation Clip:
 - **IsMoving**: `true` when moving, `false` when idle
 - **IsCarrying**: `true` when holding something, `false` when empty-handed
 - **Direction**: 
-  - `0` = South
-  - `1` = North
-  - `2` = East
+  - `0` = North
+  - `1` = East
+  - `2` = South
   - `3` = West
 
 ## Alternative: Blend Trees

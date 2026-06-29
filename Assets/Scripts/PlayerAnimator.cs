@@ -2,105 +2,83 @@ using UnityEngine;
 
 /// <summary>
 /// Controls player animations using Unity's Animator system.
-/// This component sets Animator parameters based on player state.
+/// Drives 2D Simple Directional blend trees via DirectionX / DirectionY.
 /// </summary>
 public class PlayerAnimator : MonoBehaviour
 {
     [Header("Animator Reference")]
     [SerializeField] private Animator animator;
     
-    // Animator parameter names (must match the Animator Controller)
     private const string PARAM_IS_MOVING = "IsMoving";
     private const string PARAM_IS_CARRYING = "IsCarrying";
-    private const string PARAM_DIRECTION = "Direction"; // 0=South, 1=North, 2=East, 3=West
+    private const string PARAM_DIRECTION_X = "DirectionX";
+    private const string PARAM_DIRECTION_Y = "DirectionY";
     
     private Direction currentDirection = Direction.South;
-    private bool isCarrying = false;
-    private bool isMoving = false;
+    private bool isCarrying;
+    private bool isMoving;
     
     private void Awake()
     {
-        // Get or find Animator component
         if (animator == null)
-        {
             animator = GetComponent<Animator>();
-        }
         
         if (animator == null)
-        {
-            Debug.LogWarning("PlayerAnimator: No Animator component found. Please add an Animator component and assign an Animator Controller.");
-        }
+            Debug.LogWarning("PlayerAnimator: No Animator component found.");
     }
     
     private void Start()
     {
-        // Initialize animator with current state
+        UpdateAnimatorParameters();
+    }
+
+    private void Update()
+    {
         UpdateAnimatorParameters();
     }
     
-    /// <summary>
-    /// Called when the player's facing direction changes
-    /// </summary>
     public void OnDirectionChanged(Direction newDirection)
     {
-        if (currentDirection != newDirection)
-        {
-            currentDirection = newDirection;
-            UpdateAnimatorParameters();
-        }
+        if (currentDirection == newDirection) return;
+        currentDirection = newDirection;
+        UpdateAnimatorParameters();
     }
     
-    /// <summary>
-    /// Called when the player's carrying state changes
-    /// </summary>
     public void OnCarryingStateChanged(bool carrying)
     {
-        if (isCarrying != carrying)
-        {
-            isCarrying = carrying;
-            UpdateAnimatorParameters();
-        }
+        if (isCarrying == carrying) return;
+        isCarrying = carrying;
+        UpdateAnimatorParameters();
     }
     
-    /// <summary>
-    /// Called when the player starts or stops moving
-    /// </summary>
     public void OnMovementStateChanged(bool moving)
     {
-        if (isMoving != moving)
-        {
-            isMoving = moving;
-            UpdateAnimatorParameters();
-        }
+        if (isMoving == moving) return;
+        isMoving = moving;
+        UpdateAnimatorParameters();
     }
     
     private void UpdateAnimatorParameters()
     {
         if (animator == null) return;
         
-        // Set boolean parameters
         animator.SetBool(PARAM_IS_MOVING, isMoving);
         animator.SetBool(PARAM_IS_CARRYING, isCarrying);
-        
-        // Set direction as integer (0=South, 1=North, 2=East, 3=West)
-        int directionValue = DirectionToInt(currentDirection);
-        animator.SetInteger(PARAM_DIRECTION, directionValue);
+
+        Vector2 facing = DirectionToVector(currentDirection);
+        animator.SetFloat(PARAM_DIRECTION_X, facing.x);
+        animator.SetFloat(PARAM_DIRECTION_Y, facing.y);
     }
     
-    private int DirectionToInt(Direction dir)
+    private static Vector2 DirectionToVector(Direction dir)
     {
         switch (dir)
         {
-            case Direction.South:
-                return 2;
-            case Direction.North:
-                return 0;
-            case Direction.East:
-                return 1;
-            case Direction.West:
-                return 3;
-            default:
-                return 2;
+            case Direction.North: return Vector2.up;
+            case Direction.South: return Vector2.down;
+            case Direction.East: return Vector2.right;
+            case Direction.West: return Vector2.left;
+            default: return Vector2.down;
         }
     }
 }
