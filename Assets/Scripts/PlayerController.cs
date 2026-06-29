@@ -37,6 +37,12 @@ public class PlayerController : MonoBehaviour, InputSystem_Actions.IPlayerAction
     public Direction CurrentFacing => currentFacing;
     public bool IsCarrying => isCarrying;
     public bool IsMoving => moveInput.magnitude > 0.1f;
+
+    /// <summary>
+    /// Raw facing for blend trees: normalized input while moving, cardinal facing when idle.
+    /// </summary>
+    public Vector2 AnimationFacing =>
+        moveInput.sqrMagnitude > 0.01f ? moveInput.normalized : GetDirectionVector(currentFacing);
     
     private void Awake()
     {

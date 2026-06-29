@@ -12,12 +12,21 @@ public static class PlayerAnimatorControllerBuilder
     private const string ControllerPath = "Assets/Animations/Player/PlayerAnimatorController.controller";
     private const string ClipsRoot = "Assets/Animations/Player";
 
-    private static readonly (string suffix, Vector2 position)[] DirectionClips =
+    private static readonly (string suffix, Vector2 position)[] CardinalClips =
     {
         ("N", new Vector2(0f, 1f)),
         ("E", new Vector2(1f, 0f)),
         ("S", new Vector2(0f, -1f)),
         ("W", new Vector2(-1f, 0f)),
+    };
+
+    // Diagonals reuse E/W clips so down+right faces east, down+left faces west, etc.
+    private static readonly (string suffix, Vector2 position)[] DiagonalClips =
+    {
+        ("E", new Vector2(1f, 1f)),
+        ("W", new Vector2(-1f, 1f)),
+        ("E", new Vector2(1f, -1f)),
+        ("W", new Vector2(-1f, -1f)),
     };
 
     [MenuItem("Huck Amok/Rebuild Player Animator Controller (Blend Trees)")]
@@ -180,7 +189,18 @@ public static class PlayerAnimatorControllerBuilder
         };
         AssetDatabase.AddObjectToAsset(tree, controller);
 
-        foreach (var (suffix, position) in DirectionClips)
+        AddBlendClips(tree, clipPrefix, CardinalClips);
+        AddBlendClips(tree, clipPrefix, DiagonalClips);
+
+        return tree;
+    }
+
+    private static void AddBlendClips(
+        BlendTree tree,
+        string clipPrefix,
+        (string suffix, Vector2 position)[] clips)
+    {
+        foreach (var (suffix, position) in clips)
         {
             var path = $"{ClipsRoot}/{clipPrefix}{suffix}.anim";
             var clip = AssetDatabase.LoadAssetAtPath<AnimationClip>(path);
@@ -189,8 +209,6 @@ public static class PlayerAnimatorControllerBuilder
 
             tree.AddChild(clip, position);
         }
-
-        return tree;
     }
 
     private static void AddAnyStateTransition(

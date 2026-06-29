@@ -34,7 +34,7 @@ public class PlayerAnimator : MonoBehaviour
         animator.SetBool(PARAM_IS_MOVING, playerController.IsMoving);
         animator.SetBool(PARAM_IS_CARRYING, playerController.IsCarrying);
 
-        Vector2 facing = DirectionToVector(playerController.CurrentFacing);
+        Vector2 facing = playerController.AnimationFacing;
         animator.SetFloat(PARAM_DIRECTION_X, facing.x);
         animator.SetFloat(PARAM_DIRECTION_Y, facing.y);
     }
@@ -44,16 +44,4 @@ public class PlayerAnimator : MonoBehaviour
     public void OnCarryingStateChanged(bool carrying) { }
     
     public void OnMovementStateChanged(bool moving) { }
-    
-    private static Vector2 DirectionToVector(Direction dir)
-    {
-        switch (dir)
-        {
-            case Direction.North: return Vector2.up;
-            case Direction.South: return Vector2.down;
-            case Direction.East: return Vector2.right;
-            case Direction.West: return Vector2.left;
-            default: return Vector2.down;
-        }
-    }
 }
