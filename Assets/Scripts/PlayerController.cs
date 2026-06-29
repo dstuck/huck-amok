@@ -36,6 +36,7 @@ public class PlayerController : MonoBehaviour, InputSystem_Actions.IPlayerAction
     
     public Direction CurrentFacing => currentFacing;
     public bool IsCarrying => isCarrying;
+    public bool IsMoving => moveInput.magnitude > 0.1f;
     
     private void Awake()
     {

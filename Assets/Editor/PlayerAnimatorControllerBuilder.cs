@@ -5,7 +5,7 @@ using UnityEngine;
 
 /// <summary>
 /// Rebuilds PlayerAnimatorController with separate 2D Simple Directional blend trees
-/// for Idle, Walk, and Carry (DirectionX / DirectionY).
+/// for Idle, Walk, Carry, and CarryIdle (DirectionX / DirectionY).
 /// </summary>
 public static class PlayerAnimatorControllerBuilder
 {
@@ -29,6 +29,19 @@ public static class PlayerAnimatorControllerBuilder
             Debug.LogError("Failed to rebuild PlayerAnimatorController.");
     }
 
+    [InitializeOnLoadMethod]
+    private static void RebuildIfControllerMissing()
+    {
+        EditorApplication.delayCall += () =>
+        {
+            if (AssetDatabase.LoadAssetAtPath<AnimatorController>(ControllerPath) != null)
+                return;
+
+            Debug.Log("PlayerAnimatorController missing or broken; rebuilding via Unity API...");
+            Rebuild();
+        };
+    }
+
     public static void RebuildBatchmode()
     {
         if (!Rebuild())
@@ -49,6 +62,7 @@ public static class PlayerAnimatorControllerBuilder
         controller.AddParameter("IsCarrying", AnimatorControllerParameterType.Bool);
         controller.AddParameter("DirectionX", AnimatorControllerParameterType.Float);
         controller.AddParameter("DirectionY", AnimatorControllerParameterType.Float);
+        SetParameterDefault(controller, "DirectionY", -1f);
 
         var sm = controller.layers[0].stateMachine;
         if (sm == null)
@@ -59,12 +73,19 @@ public static class PlayerAnimatorControllerBuilder
 
         var idleState = sm.AddState("Idle", new Vector3(300f, 0f, 0f));
         idleState.motion = CreateDirectionBlendTree(controller, "IdleBlend", "Idle");
+        idleState.writeDefaultValues = false;
 
         var walkState = sm.AddState("Walk", new Vector3(300f, 120f, 0f));
         walkState.motion = CreateDirectionBlendTree(controller, "WalkBlend", "Walk");
+        walkState.writeDefaultValues = false;
 
         var carryState = sm.AddState("Carry", new Vector3(300f, 240f, 0f));
         carryState.motion = CreateDirectionBlendTree(controller, "CarryBlend", "Carry");
+        carryState.writeDefaultValues = false;
+
+        var carryIdleState = sm.AddState("CarryIdle", new Vector3(300f, 360f, 0f));
+        carryIdleState.motion = CreateDirectionBlendTree(controller, "CarryIdleBlend", "CarryIdle");
+        carryIdleState.writeDefaultValues = false;
 
         sm.defaultState = idleState;
 
@@ -77,6 +98,11 @@ public static class PlayerAnimatorControllerBuilder
             (AnimatorConditionMode.IfNot, "IsCarrying"));
 
         AddAnyStateTransition(sm, carryState,
+            (AnimatorConditionMode.If, "IsMoving"),
+            (AnimatorConditionMode.If, "IsCarrying"));
+
+        AddAnyStateTransition(sm, carryIdleState,
+            (AnimatorConditionMode.IfNot, "IsMoving"),
             (AnimatorConditionMode.If, "IsCarrying"));
 
         EditorUtility.SetDirty(controller);
@@ -125,6 +151,22 @@ public static class PlayerAnimatorControllerBuilder
             sm.RemoveState(childState.state);
         foreach (var child in sm.stateMachines.ToArray())
             sm.RemoveStateMachine(child.stateMachine);
+    }
+
+    private static void SetParameterDefault(AnimatorController controller, string name, float defaultValue)
+    {
+        var serializedController = new SerializedObject(controller);
+        var parameters = serializedController.FindProperty("m_AnimatorParameters");
+        for (int i = 0; i < parameters.arraySize; i++)
+        {
+            var element = parameters.GetArrayElementAtIndex(i);
+            if (element.FindPropertyRelative("m_Name").stringValue != name)
+                continue;
+
+            element.FindPropertyRelative("m_DefaultFloat").floatValue = defaultValue;
+            serializedController.ApplyModifiedProperties();
+            return;
+        }
     }
 
     private static BlendTree CreateDirectionBlendTree(AnimatorController controller, string treeName, string clipPrefix)
