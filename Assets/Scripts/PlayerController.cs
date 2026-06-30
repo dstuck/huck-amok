@@ -28,6 +28,7 @@ public class PlayerController : MonoBehaviour, InputSystem_Actions.IPlayerAction
     private bool isCarrying = false;
     private Collider2D playerCollider;
     private SpriteRenderer playerSpriteRenderer;
+    private PlayerAnimator playerAnimator;
     
     // Animation hooks
     public System.Action<Direction> OnFacingDirectionChanged;
@@ -35,6 +36,13 @@ public class PlayerController : MonoBehaviour, InputSystem_Actions.IPlayerAction
     
     public Direction CurrentFacing => currentFacing;
     public bool IsCarrying => isCarrying;
+    public bool IsMoving => moveInput.magnitude > 0.1f;
+
+    /// <summary>
+    /// Raw facing for blend trees: normalized input while moving, cardinal facing when idle.
+    /// </summary>
+    public Vector2 AnimationFacing =>
+        moveInput.sqrMagnitude > 0.01f ? moveInput.normalized : GetDirectionVector(currentFacing);
     
     private void Awake()
     {
@@ -42,11 +50,23 @@ public class PlayerController : MonoBehaviour, InputSystem_Actions.IPlayerAction
         inputActions.Player.SetCallbacks(this);
         playerCollider = GetComponent<Collider2D>();
         playerSpriteRenderer = GetComponent<SpriteRenderer>();
+        playerAnimator = GetComponent<PlayerAnimator>();
     }
     
     private void OnEnable()
     {
         inputActions.Player.Enable();
+    }
+    
+    private void Start()
+    {
+        // Initialize animator with current state
+        if (playerAnimator != null)
+        {
+            playerAnimator.OnDirectionChanged(currentFacing);
+            playerAnimator.OnCarryingStateChanged(isCarrying);
+            playerAnimator.OnMovementStateChanged(false);
+        }
     }
     
     private void OnDisable()
@@ -62,19 +82,34 @@ public class PlayerController : MonoBehaviour, InputSystem_Actions.IPlayerAction
     
     private void HandleMovement()
     {
-        if (moveInput.magnitude > 0.1f)
+        bool isMoving = moveInput.magnitude > 0.1f;
+
+        // Update facing from input even before movement threshold (static direction while idle)
+        if (moveInput.sqrMagnitude > 0.01f)
         {
-            // Move the player
-            Vector2 movement = moveInput.normalized * moveSpeed * Time.deltaTime;
-            transform.Translate(movement);
-            
-            // Update facing direction (snap to N/S/E/W)
             Direction newFacing = GetDirectionFromVector(moveInput);
             if (newFacing != currentFacing)
             {
                 currentFacing = newFacing;
                 OnFacingDirectionChanged?.Invoke(currentFacing);
+                playerAnimator?.OnDirectionChanged(currentFacing);
             }
+        }
+        
+        if (isMoving)
+        {
+            // Move the player
+            Vector2 movement = moveInput.normalized * moveSpeed * Time.deltaTime;
+            transform.Translate(movement);
+        }
+        
+        if (isMoving)
+        {
+            playerAnimator?.OnMovementStateChanged(true);
+        }
+        else
+        {
+            playerAnimator?.OnMovementStateChanged(false);
         }
     }
     
@@ -244,6 +279,7 @@ public class PlayerController : MonoBehaviour, InputSystem_Actions.IPlayerAction
         // Immediately position the slime at the held position
         UpdateHeldObjectPosition();
         OnCarryingStateChanged?.Invoke(true);
+        playerAnimator?.OnCarryingStateChanged(true);
     }
     
     private void ThrowHeldObject()
@@ -260,6 +296,7 @@ public class PlayerController : MonoBehaviour, InputSystem_Actions.IPlayerAction
         heldSlime = null;
         isCarrying = false;
         OnCarryingStateChanged?.Invoke(false);
+        playerAnimator?.OnCarryingStateChanged(false);
     }
     
     private Vector2 GetThrowStartPosition()

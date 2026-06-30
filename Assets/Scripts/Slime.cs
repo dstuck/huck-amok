@@ -95,6 +95,8 @@ public class Slime : MonoBehaviour
     {
         return currentState == SlimeState.Active;
     }
+
+    public bool IsMoving => movementState == SlimeMovementState.Wandering;
     
     public void OnPickup(PlayerController player)
     {
