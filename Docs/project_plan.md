@@ -17,13 +17,22 @@ and be held above the character. When thrown they should remain inactive while f
 - [x] Able to pick up enemy and throw it at another to destroy them both
 
 0.2 Animation
-- [ ] change direction and carry slimes
+- [x] change direction and carry slimes
+- [x] slimes animate while moving
 
-0.3 Enemies
-- [ ] single slimes within a certain distance will combine into medium slime
+0.3 Stacked Enemies
+- [ ] grabbing a medium slime will split it into 1 in your hands and another as the remainder (1 small one for now)
+- [ ] hitting a medium slime with another will reduce it to a small slime
+- [ ] hitting or grabbing a slime will trigger a invulnerable frames (visualized by flashing) so you can't immediately throw the slime at it [this will be shared behavior with player soon]
 - [ ] medium slimes will shoot short distance slime balls at the player
     - while in detection radius moves toward player
     - while in firing radius flickers, shoots a slime ball, repeats after a delay
-- [ ] grabbing a medium slime will split it into two small slimes
-- [ ] hitting a medium slime with another will reduce it to a small slime
+
+0.4 Damage
+- [ ] player has max life with UI
+- [ ] damaged by projectiles
+- [ ] add invulnerable frames
+
+0.4 Enemy combination
+- [ ] single slimes within a certain distance will combine into medium slime
 

@@ -13,6 +13,7 @@ GameObject:
   - component: {fileID: 1266955519128564197}
   - component: {fileID: 5900460162452318700}
   - component: {fileID: 4825457964194252305}
+  - component: {fileID: -2022977876408128092}
   m_Layer: 0
   m_Name: Slime
   m_TagString: Enemy
@@ -182,3 +183,23 @@ BoxCollider2D:
   m_AutoTiling: 0
   m_Size: {x: 0.16, y: 0.14}
   m_EdgeRadius: 0
+--- !u!114 &-2022977876408128092
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5439509473600276826}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b8a98a355c9fb45f3868d18c8ad303be, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  idleFrames:
+  - {fileID: -1070234036360988942, guid: 6b0f9d34c756c4971b9627d54c122c0b, type: 3}
+  - {fileID: -1911208831069911435, guid: 6b0f9d34c756c4971b9627d54c122c0b, type: 3}
+  - {fileID: 3139962496748581616, guid: 6b0f9d34c756c4971b9627d54c122c0b, type: 3}
+  - {fileID: -7030510787030407499, guid: 6b0f9d34c756c4971b9627d54c122c0b, type: 3}
+  frameDuration: 0.15
+  speedVariation: 0.25
+  idleSpeedMultiplier: 0
