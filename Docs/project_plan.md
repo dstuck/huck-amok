@@ -21,10 +21,10 @@ and be held above the character. When thrown they should remain inactive while f
 - [x] slimes animate while moving
 
 0.3 Stacked Enemies
-- [ ] grabbing a medium slime will split it into 1 in your hands and another as the remainder (1 small one for now)
-- [ ] hitting a medium slime with another will reduce it to a small slime
-- [ ] hitting or grabbing a slime will trigger a invulnerable frames (visualized by flashing) so you can't immediately throw the slime at it [this will be shared behavior with player soon]
-- [ ] medium slimes will shoot short distance slime balls at the player
+- [x] grabbing a medium slime will split it into 1 in your hands and another as the remainder (1 small one for now)
+- [x] hitting a medium slime with another will reduce it to a small slime
+- [x] hitting or grabbing a slime will trigger a invulnerable frames (visualized by flashing) so you can't immediately throw the slime at it [this will be shared behavior with player soon]
+- [x] medium slimes will shoot short distance slime balls at the player
     - while in detection radius moves toward player
     - while in firing radius flickers, shoots a slime ball, repeats after a delay
 
