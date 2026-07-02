@@ -13,6 +13,9 @@ public class Enemy : MonoBehaviour
     [Header("Movement")]
     [SerializeField] private float directionChangeSmoothing = 3f;
 
+    [Header("Audio")]
+    [SerializeField] private AudioClip[] pickupSounds;
+
     private EnemyState currentState = EnemyState.Active;
     private EnemyMovementState movementState = EnemyMovementState.Idle;
     private Vector2 currentDirection = Vector2.zero;
@@ -46,6 +49,18 @@ public class Enemy : MonoBehaviour
 
         invulnerability = GetComponent<InvulnerabilityController>();
         brain = GetComponent<EnemyBrain>();
+    }
+
+    private void OnEnable()
+    {
+        if (GameManager.Instance != null && GameManager.HasStarted)
+            GameManager.Instance.RegisterEnemy();
+    }
+
+    private void OnDestroy()
+    {
+        if (GameManager.Instance != null)
+            GameManager.Instance.UnregisterEnemy();
     }
 
     private void Update()
@@ -129,6 +144,14 @@ public class Enemy : MonoBehaviour
         var col = GetComponent<Collider2D>();
         if (col != null)
             col.enabled = false;
+
+        if (pickupSounds != null && pickupSounds.Length > 0 && SoundFXManager.Instance != null)
+        {
+            SoundFXManager.Instance.PlayRandomSoundFXClip(
+                pickupSounds,
+                transform,
+                category: SfxCategory.Pickup);
+        }
     }
 
     public void OnThrown(Vector2 direction, float distance, float speed)

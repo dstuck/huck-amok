@@ -181,6 +181,10 @@ MonoBehaviour:
   tier: 0
   throwTimeout: 0.5
   directionChangeSmoothing: 3
+  pickupSounds:
+  - {fileID: 8300000, guid: c0e307d818c8f49ecb422c9ecc8c6daf, type: 3}
+  - {fileID: 8300000, guid: 3e3e867ffb7764c8cb42defd6f2db0cb, type: 3}
+  - {fileID: 8300000, guid: 2a81e1fb7c1b745c2933332e2004dd73, type: 3}
 --- !u!114 &4623304076422149143
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -196,6 +200,16 @@ MonoBehaviour:
   behavior:
     rid: 1142036991949144362
   config: {fileID: 11400000, guid: 7abdbc9529372438d9172a93cc26d552, type: 2}
+  useChaseAndShootOverrides: 0
+  chaseAndShootOverrides:
+    moveSpeed: 0.2
+    detectionRadius: 4
+    attackRadius: 1
+    minAttackRadius: 0.5
+    flickerDuration: 0.2
+    shootCooldown: 1.5
+    projectileSpeed: 1.4
+    projectileMaxRange: 3
   references:
     version: 2
     RefIds:

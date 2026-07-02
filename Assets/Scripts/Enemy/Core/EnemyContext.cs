@@ -48,12 +48,20 @@ public class EnemyContext
 
         var projectile = Object.Instantiate(
             config.projectilePrefab,
-            Transform.position,
+            (Vector2)Transform.position + direction.normalized * 0.06f,
             Quaternion.identity);
 
         if (projectile.TryGetComponent<SlimeProjectile>(out var slimeProjectile))
         {
             slimeProjectile.Initialize(direction.normalized, config.projectileSpeed, config.projectileMaxRange);
+        }
+
+        if (config.shootSounds != null && config.shootSounds.Length > 0 && SoundFXManager.Instance != null)
+        {
+            SoundFXManager.Instance.PlayRandomSoundFXClip(
+                config.shootSounds,
+                Transform,
+                category: SfxCategory.Shoot);
         }
     }
 

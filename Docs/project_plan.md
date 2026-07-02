@@ -29,10 +29,22 @@ and be held above the character. When thrown they should remain inactive while f
     - while in firing radius flickers, shoots a slime ball, repeats after a delay
 
 0.4 Damage
-- [ ] player has max life with UI
+- [ ] player has 3 hearts with UI display
 - [ ] damaged by projectiles
+- [ ] projectiles immediately splat when they hit the player
 - [ ] add invulnerable frames
+- [ ] add sound for shots, hit
+- [ ] add gameover state when all three hearts are lost that restarts at the beginning
+- [ ] Add success state when all slimes are defeated
 
-0.4 Enemy combination
+0.5 Enemy combination
 - [ ] single slimes within a certain distance will combine into medium slime
 
+
+0.6 Enemy types
+- [ ] Create slime attack types
+    - [ ] sticky shot
+    - [ ] multi shot
+    - [ ] trailing
+- [ ] Refactor slime colors
+- [ ] Larger slime colors set by components

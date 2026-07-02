@@ -76,6 +76,9 @@ public class PlayerController : MonoBehaviour, InputSystem_Actions.IPlayerAction
     
     private void Update()
     {
+        if (GameManager.Instance != null && GameManager.Instance.State != GameplayState.Playing)
+            return;
+
         HandleMovement();
         UpdateHeldObjectPosition();
     }
@@ -204,6 +207,9 @@ public class PlayerController : MonoBehaviour, InputSystem_Actions.IPlayerAction
     
     private void AttemptPickup()
     {
+        if (GameManager.Instance != null && GameManager.Instance.State != GameplayState.Playing)
+            return;
+
         if (heldEnemy != null)
         {
             ThrowHeldObject();

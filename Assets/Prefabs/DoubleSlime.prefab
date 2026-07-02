@@ -182,6 +182,10 @@ MonoBehaviour:
   tier: 1
   throwTimeout: 0.5
   directionChangeSmoothing: 3
+  pickupSounds:
+  - {fileID: 8300000, guid: c0e307d818c8f49ecb422c9ecc8c6daf, type: 3}
+  - {fileID: 8300000, guid: 3e3e867ffb7764c8cb42defd6f2db0cb, type: 3}
+  - {fileID: 8300000, guid: 2a81e1fb7c1b745c2933332e2004dd73, type: 3}
 --- !u!114 &711319066536835405
 MonoBehaviour:
   m_ObjectHideFlags: 0
