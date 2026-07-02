@@ -12,12 +12,13 @@ GameObject:
   - component: {fileID: 4233549843829715893}
   - component: {fileID: 1266955519128564197}
   - component: {fileID: 4825457964194252305}
-  - component: {fileID: 4360268166182168171}
-  - component: {fileID: 4623304076422149143}
-  - component: {fileID: 4697180970508227396}
-  - component: {fileID: 3623471281955671292}
+  - component: {fileID: 6570428989570614701}
+  - component: {fileID: 711319066536835405}
+  - component: {fileID: 4013283692429906807}
+  - component: {fileID: 3994234524295946514}
+  - component: {fileID: 1564212655621088885}
   m_Layer: 0
-  m_Name: Slime
+  m_Name: DoubleSlime
   m_TagString: Enemy
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -109,7 +110,7 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
-  m_Sprite: {fileID: -1070234036360988942, guid: 6b0f9d34c756c4971b9627d54c122c0b, type: 3}
+  m_Sprite: {fileID: 136906663704623072, guid: c6c5320ea3a3e4ce381965908f200553, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -157,8 +158,8 @@ BoxCollider2D:
   m_Offset: {x: 0, y: 0.07}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
-    pivot: {x: 0.5, y: 0}
-    oldSize: {x: 0.16, y: 0.14}
+    pivot: {x: 0.5, y: 0.5}
+    oldSize: {x: 0.16, y: 0.21}
     newSize: {x: 0.16, y: 0.14}
     adaptiveTilingThreshold: 0.5
     drawMode: 0
@@ -166,7 +167,7 @@ BoxCollider2D:
   m_AutoTiling: 0
   m_Size: {x: 0.16, y: 0.14}
   m_EdgeRadius: 0
---- !u!114 &4360268166182168171
+--- !u!114 &6570428989570614701
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -178,10 +179,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4c1d9eb3d3ff94a4e80636315c0a63f3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  tier: 0
+  tier: 1
   throwTimeout: 0.5
   directionChangeSmoothing: 3
---- !u!114 &4623304076422149143
+--- !u!114 &711319066536835405
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -194,15 +195,25 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   behavior:
-    rid: 1142036991949144362
-  config: {fileID: 11400000, guid: 7abdbc9529372438d9172a93cc26d552, type: 2}
+    rid: 1142036991949144364
+  config: {fileID: 11400000, guid: d4cac8f4d822547afb0efb4f4a22a7ca, type: 2}
+  useChaseAndShootOverrides: 1
+  chaseAndShootOverrides:
+    moveSpeed: 0.2
+    detectionRadius: 1.75
+    attackRadius: 1
+    minAttackRadius: 0.3
+    flickerDuration: 0.2
+    shootCooldown: 1.5
+    projectileSpeed: 0.75
+    projectileMaxRange: 1
   references:
     version: 2
     RefIds:
-    - rid: 1142036991949144362
-      type: {class: WanderBehavior, ns: , asm: Assembly-CSharp}
+    - rid: 1142036991949144364
+      type: {class: ChaseAndShootBehavior, ns: , asm: Assembly-CSharp}
       data: 
---- !u!114 &4697180970508227396
+--- !u!114 &4013283692429906807
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -215,14 +226,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   idleFrames:
-  - {fileID: -1070234036360988942, guid: 6b0f9d34c756c4971b9627d54c122c0b, type: 3}
-  - {fileID: -1911208831069911435, guid: 6b0f9d34c756c4971b9627d54c122c0b, type: 3}
-  - {fileID: 3139962496748581616, guid: 6b0f9d34c756c4971b9627d54c122c0b, type: 3}
-  - {fileID: -7030510787030407499, guid: 6b0f9d34c756c4971b9627d54c122c0b, type: 3}
+  - {fileID: -2490191300240213547, guid: c6c5320ea3a3e4ce381965908f200553, type: 3}
+  - {fileID: 136906663704623072, guid: c6c5320ea3a3e4ce381965908f200553, type: 3}
+  - {fileID: -7545557624716020041, guid: c6c5320ea3a3e4ce381965908f200553, type: 3}
+  - {fileID: 4169359422347663551, guid: c6c5320ea3a3e4ce381965908f200553, type: 3}
   frameDuration: 0.15
   speedVariation: 0.25
   idleSpeedMultiplier: 0
---- !u!114 &3623471281955671292
+--- !u!114 &3994234524295946514
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -236,3 +247,17 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   defaultDuration: 0.5
   flashInterval: 0.08
+--- !u!114 &1564212655621088885
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5439509473600276826}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2d0f629e393044a32bd9d514afdf9256, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  smallSlimePrefab: {fileID: 5439509473600276826, guid: d00ab7cd8fab0430db346246565b67b1, type: 3}
+  remainderOffset: {x: 0.15, y: 0}

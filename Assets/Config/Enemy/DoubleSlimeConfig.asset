@@ -1,0 +1,28 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 06e05d597ef2547d1883e97a5f3e6a06, type: 3}
+  m_Name: DoubleSlimeBehaviorConfig
+  m_EditorClassIdentifier: 
+  moveSpeed: 0.2
+  directionChangeSmoothing: 3
+  wanderDurationMin: 2
+  wanderDurationMax: 4
+  idleDurationMin: 0.5
+  idleDurationMax: 2
+  detectionRadius: 4
+  attackRadius: 1
+  minAttackRadius: 0.5
+  flickerDuration: 0.2
+  shootCooldown: 1.5
+  projectilePrefab: {fileID: 5174344487228000109, guid: fab6355b7c7634e75a368cb02ffcfda1, type: 3}
+  projectileSpeed: 1.4
+  projectileMaxRange: 3

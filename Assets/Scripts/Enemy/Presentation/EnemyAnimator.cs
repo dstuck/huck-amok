@@ -1,8 +1,8 @@
 using System.Linq;
 using UnityEngine;
 
-[RequireComponent(typeof(SpriteRenderer), typeof(Slime))]
-public class SlimeAnimator : MonoBehaviour
+[RequireComponent(typeof(SpriteRenderer), typeof(Enemy))]
+public class EnemyAnimator : MonoBehaviour
 {
     [Header("Sprites")]
     [SerializeField] private Sprite[] idleFrames;
@@ -13,7 +13,7 @@ public class SlimeAnimator : MonoBehaviour
     [SerializeField] private float idleSpeedMultiplier = 0f;
 
     private SpriteRenderer spriteRenderer;
-    private Slime slime;
+    private Enemy enemy;
     private float frameTimer;
     private int frameIndex;
     private float animationSpeed = 1f;
@@ -22,7 +22,7 @@ public class SlimeAnimator : MonoBehaviour
     private void Awake()
     {
         spriteRenderer = GetComponent<SpriteRenderer>();
-        slime = GetComponent<Slime>();
+        enemy = GetComponent<Enemy>();
 
         animationSpeed = 1f + Random.Range(-speedVariation, speedVariation);
         localFrameDuration = frameDuration * (1f + Random.Range(-0.15f, 0.15f));
@@ -58,17 +58,17 @@ public class SlimeAnimator : MonoBehaviour
 
     private float GetPlaybackSpeed()
     {
-        if (slime == null)
+        if (enemy == null)
             return animationSpeed;
 
-        switch (slime.GetState())
+        switch (enemy.GetState())
         {
-            case SlimeState.Inactive:
+            case EnemyState.Inactive:
                 return 0f;
-            case SlimeState.Thrown:
+            case EnemyState.Thrown:
                 return animationSpeed;
-            case SlimeState.Active:
-                return slime.IsMoving ? animationSpeed : animationSpeed * idleSpeedMultiplier;
+            case EnemyState.Active:
+                return enemy.IsMoving ? animationSpeed : animationSpeed * idleSpeedMultiplier;
             default:
                 return animationSpeed;
         }
@@ -80,8 +80,12 @@ public class SlimeAnimator : MonoBehaviour
         if (idleFrames != null && idleFrames.Length > 0)
             return;
 
+        string path = GetComponent<Enemy>()?.Tier == EnemyTier.Medium
+            ? "Assets/Sprites/doubleSlime.png"
+            : "Assets/Sprites/sprSlimeIdle.png";
+
         idleFrames = UnityEditor.AssetDatabase
-            .LoadAllAssetsAtPath("Assets/Sprites/sprSlimeIdle.png")
+            .LoadAllAssetsAtPath(path)
             .OfType<Sprite>()
             .OrderBy(sprite => sprite.name)
             .ToArray();

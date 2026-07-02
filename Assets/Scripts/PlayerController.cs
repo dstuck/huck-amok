@@ -24,7 +24,7 @@ public class PlayerController : MonoBehaviour, InputSystem_Actions.IPlayerAction
     private InputSystem_Actions inputActions;
     private Vector2 moveInput;
     private Direction currentFacing = Direction.South;
-    private Slime heldSlime;
+    private Enemy heldEnemy;
     private bool isCarrying = false;
     private Collider2D playerCollider;
     private SpriteRenderer playerSpriteRenderer;
@@ -195,67 +195,58 @@ public class PlayerController : MonoBehaviour, InputSystem_Actions.IPlayerAction
     
     private void UpdateHeldObjectPosition()
     {
-        if (heldSlime != null)
+        if (heldEnemy != null)
         {
             Vector2 offset = heldOffset;
-            // Adjust offset based on facing direction if needed
-            heldSlime.transform.position = (Vector2)transform.position + offset;
+            heldEnemy.transform.position = (Vector2)transform.position + offset;
         }
     }
     
     private void AttemptPickup()
     {
-        if (heldSlime != null)
+        if (heldEnemy != null)
         {
-            // Already holding something, throw it instead
             ThrowHeldObject();
             return;
         }
         
-        // Use overlap check first for close-range detection, then raycast for distance
         Vector2 direction = GetDirectionVector(currentFacing);
         
-        // First, check for overlapping slimes in the facing direction using overlap
-        float overlapRadius = Mathf.Max(pickupRange * 2f, 0.2f); // At least 0.2 units
+        float overlapRadius = Mathf.Max(pickupRange * 2f, 0.2f);
         Collider2D[] overlaps = Physics2D.OverlapCircleAll(transform.position, overlapRadius, pickupLayerMask);
-        Slime closestSlime = null;
+        Enemy closestEnemy = null;
         float closestDistance = float.MaxValue;
         
         foreach (Collider2D col in overlaps)
         {
             if (col.CompareTag("Player")) continue;
             
-            Slime slime = col.GetComponent<Slime>();
-            if (slime != null && slime.CanBePickedUp())
+            Enemy enemy = col.GetComponent<Enemy>();
+            if (enemy != null && enemy.CanBePickedUp())
             {
-                // Check if slime is in the facing direction
-                Vector2 toSlime = ((Vector2)col.transform.position - (Vector2)transform.position).normalized;
-                float dot = Vector2.Dot(direction, toSlime);
+                Vector2 toEnemy = ((Vector2)col.transform.position - (Vector2)transform.position).normalized;
+                float dot = Vector2.Dot(direction, toEnemy);
                 
-                // If slime is in the general direction (allow some tolerance)
-                if (dot > 0.3f) // ~70 degree cone
+                if (dot > 0.3f)
                 {
                     float distance = Vector2.Distance(transform.position, col.transform.position);
                     if (distance < closestDistance)
                     {
                         closestDistance = distance;
-                        closestSlime = slime;
+                        closestEnemy = enemy;
                     }
                 }
             }
         }
         
-        if (closestSlime != null)
+        if (closestEnemy != null)
         {
-            PickupSlime(closestSlime);
+            PickupEnemy(closestEnemy);
             return;
         }
         
-        // Fall back to raycast for objects further away
-        // Start raycast from the edge of the player in the facing direction
         Vector2 raycastStart = GetEdgePosition(currentFacing);
         
-        // Exclude player layer from the layer mask
         int playerLayer = gameObject.layer;
         LayerMask excludePlayerMask = pickupLayerMask & ~(1 << playerLayer);
         
@@ -263,20 +254,29 @@ public class PlayerController : MonoBehaviour, InputSystem_Actions.IPlayerAction
         
         if (hit.collider != null)
         {
-            Slime slime = hit.collider.GetComponent<Slime>();
-            if (slime != null && slime.CanBePickedUp())
+            Enemy enemy = hit.collider.GetComponent<Enemy>();
+            if (enemy != null && enemy.CanBePickedUp())
             {
-                PickupSlime(slime);
+                PickupEnemy(enemy);
             }
         }
     }
     
-    private void PickupSlime(Slime slime)
+    private void PickupEnemy(Enemy enemy)
     {
-        heldSlime = slime;
+        heldEnemy = enemy;
         isCarrying = true;
-        slime.OnPickup(this);
-        // Immediately position the slime at the held position
+        enemy.OnPickup(this);
+        UpdateHeldObjectPosition();
+        OnCarryingStateChanged?.Invoke(true);
+        playerAnimator?.OnCarryingStateChanged(true);
+    }
+
+    public void PickupEnemyDirect(Enemy enemy)
+    {
+        heldEnemy = enemy;
+        isCarrying = true;
+        enemy.ForcePickup(this);
         UpdateHeldObjectPosition();
         OnCarryingStateChanged?.Invoke(true);
         playerAnimator?.OnCarryingStateChanged(true);
@@ -284,16 +284,14 @@ public class PlayerController : MonoBehaviour, InputSystem_Actions.IPlayerAction
     
     private void ThrowHeldObject()
     {
-        if (heldSlime == null) return;
+        if (heldEnemy == null) return;
         
         Vector2 throwDirection = GetDirectionVector(currentFacing);
-        
-        // Position the slime correctly before throwing based on facing direction
         Vector2 throwStartPosition = GetThrowStartPosition();
-        heldSlime.transform.position = throwStartPosition;
+        heldEnemy.transform.position = throwStartPosition;
         
-        heldSlime.OnThrown(throwDirection, throwDistance, throwSpeed);
-        heldSlime = null;
+        heldEnemy.OnThrown(throwDirection, throwDistance, throwSpeed);
+        heldEnemy = null;
         isCarrying = false;
         OnCarryingStateChanged?.Invoke(false);
         playerAnimator?.OnCarryingStateChanged(false);
