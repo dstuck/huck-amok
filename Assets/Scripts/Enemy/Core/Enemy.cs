@@ -119,7 +119,7 @@ public class Enemy : MonoBehaviour
         if (currentState != EnemyState.Active)
             return false;
 
-        if (TryGetComponent<SlimeCombinationController>(out var combination) && combination.IsCombining)
+        if (TryGetComponent<IEnemyCombineParticipant>(out var combination) && combination.IsCombining)
             return false;
 
         if (invulnerability != null && invulnerability.IsInvulnerable)

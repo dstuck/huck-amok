@@ -15,14 +15,18 @@ Assets/Scripts/Enemy/
 ├── Behaviors/               # AI strategies ([Serializable] classes, not MonoBehaviours)
 │   ├── EnemyBehavior.cs
 │   ├── WanderBehavior.cs
+│   ├── WanderAndCombineBehavior.cs
 │   └── ChaseAndShootBehavior.cs
 ├── Config/                  # Data types (C# only; .asset files live elsewhere)
 │   ├── EnemyConfig.cs
-│   └── ChaseAndShootSettings.cs
+│   ├── ChaseAndShootSettings.cs
+│   └── CombineSettings.cs
 ├── Interactions/            # Tier-specific pickup / thrown-hit / combine rules
 │   ├── IEnemyPickupHandler.cs
 │   ├── IEnemyHitHandler.cs
+│   ├── IEnemyCombineParticipant.cs
 │   ├── SlimeTierLinks.cs
+│   ├── SlimeMergeRule.cs
 │   ├── SlimeTierInteractions.cs
 │   ├── SlimeCombinationController.cs
 │   ├── SlimeComposition.cs
@@ -89,17 +93,21 @@ flowchart TB
     end
     subgraph behaviors [Behaviors]
         WanderBehavior
+        WanderAndCombineBehavior
         ChaseAndShootBehavior
     end
     subgraph config [Config]
         EnemyConfigAsset["EnemyConfig .asset"]
         ChaseAndShootSettings
+        CombineSettings
     end
     EnemyBrain --> behaviorRef
     behaviorRef --> WanderBehavior
+    behaviorRef --> WanderAndCombineBehavior
     behaviorRef --> ChaseAndShootBehavior
     EnemyBrain --> EnemyConfigAsset
     EnemyBrain --> ChaseAndShootSettings
+    links --> CombineSettings
     Enemy --> links
     Enemy --> handler
     Enemy --> combiner
@@ -107,8 +115,8 @@ flowchart TB
     combiner --> composition
 ```
 
-- **Tier-1 slime prefab**: `Enemy` + `WanderBehavior` + `Tier1SlimeConfig` + `SlimeTierLinks` + `SlimeCombinationController`
-- **Tier-2 slime prefab**: `Enemy` + `ChaseAndShootBehavior` + `Tier2SlimeConfig` + `SlimeTierLinks` + `SlimeTierInteractions`
+- **Tier-1 slime prefab**: `Enemy` + `WanderAndCombineBehavior` (composes `WanderBehavior`) + `Tier1SlimeConfig` + `SlimeTierLinks` (`canAutoCombine`, `CombineSettings`, merge rules) + `SlimeCombinationController`
+- **Tier-2 slime prefab**: `Enemy` + `ChaseAndShootBehavior` (composes `WanderBehavior` when out of range) + `Tier2SlimeConfig` + `SlimeTierLinks` + `SlimeTierInteractions`
 - **Tier-3 slime prefab**: `Enemy` + `ChaseAndShootBehavior` + `Tier3SlimeConfig` + `SlimeTierLinks` + `SlimeTierInteractions`
 - **Future enemy**: new behavior class + config asset (+ optional interactions handler)
 
@@ -135,9 +143,9 @@ flowchart LR
 |-------|------|----------|
 | **Behaviors** | Code — how the enemy thinks and moves | New AI pattern |
 | **Config** | Data — speeds, radii, prefab refs | New tunable enemy type |
-| **Interactions** | Exceptions to default pickup/throw rules | Split, downgrade, special hit logic |
+| **Interactions** | Exceptions to default pickup/throw/combine rules | Split, downgrade, merge |
 
-Behaviors should stay tier-agnostic when possible. Push tier-specific rules into `Interactions/`.
+Behaviors should stay tier-agnostic when possible. Push tier-specific rules and prefab graphs into `Interactions/`. Combine tuning lives on `SlimeTierLinks`, not `EnemyConfig`.
 
 ## Core types
 
@@ -145,17 +153,20 @@ Behaviors should stay tier-agnostic when possible. Push tier-specific rules into
 |------|----------------|
 | `Enemy` | Lifecycle, movement application, throw collision routing, `EnemyTier` |
 | `EnemyBrain` | Builds `EnemyContext`, calls `EnemyBehavior.Tick()` each frame |
-| `EnemyBehavior` | Abstract AI: `OnEnable`, `Tick`, `OnDisable` |
-| `EnemyConfig` | ScriptableObject with shared tuning fields |
-| `EnemyContext` | Per-tick API: distances, `Move`, `Chase`, `Stop`, `SpawnProjectile`, `SetFlicker` |
+| `EnemyBehavior` | Abstract AI: `OnEnable`, `Tick`, `OnDisable`; optional `TickDuringInvulnerability` |
+| `EnemyConfig` | ScriptableObject with shared movement/chase/shoot tuning |
+| `EnemyContext` | Per-tick API: distances, `Move`, `Chase`, `Stop`, `SpawnProjectile`, `SetFlicker`, optional `IEnemyCombineParticipant` |
 | `ChaseAndShootSettings` | Serializable per-prefab overrides for chase/shoot slime tuning |
-| `SlimeTierLinks` | Prefab graph for one-tier-up, one-tier-down, pickup piece, and pickup remainder |
+| `CombineSettings` | Serializable combine tuning on `SlimeTierLinks` (seek radius, touch distance, blink) |
+| `SlimeTierLinks` | Prefab graph for tier transitions, pickup split, merge rules, and combine settings |
 | `SlimeTierInteractions` | Generic tier split/downgrade handler driven by `SlimeTierLinks` |
-| `SlimeCombinationController` | Tier-1 seek/blink/combine behavior that spawns the linked tier-up prefab |
+| `SlimeCombinationController` | Partner reservation, merge blink, and spawn (`IEnemyCombineParticipant`) |
+| `WanderAndCombineBehavior` | Composes `WanderBehavior`; on idle expiry may approach a partner via `IEnemyCombineParticipant` |
 | `SlimeSpawnHelper` | Central spawn path for slimes; future composition data should pass through here |
 | `SlimeComposition` | Placeholder for v0.6 type slots, so tier-N slimes can remember which slime types combined |
 | `IEnemyPickupHandler` | Optional custom pickup (e.g. tier split) |
 | `IEnemyHitHandler` | Optional custom thrown-hit (e.g. tier downgrade) |
+| `IEnemyCombineParticipant` | Optional merge capability exposed to behaviors without coupling core to slime types |
 | `InvulnerabilityController` | Shared i-frames + flash visual |
 
 ## Numeric tiers
@@ -176,6 +187,16 @@ On `EnemyBrain`:
 2. Enable **Use Chase And Shoot Overrides** for `ChaseAndShootBehavior` enemies.
 3. Tune **Chase And Shoot Overrides** in the Inspector without editing the shared asset.
 
+### Combine tuning (tier-1 slimes)
+
+On `SlimeTierLinks`:
+
+1. Enable **Can Auto Combine** for tier-1 slimes that should merge.
+2. Tune **Combine Settings** (seek radius, touch distance, decision chance, blink duration).
+3. Configure **Merge Rules** (`partnerTier` → result prefab, or use partner's tier-up prefab).
+
+`WanderAndCombineBehavior` handles seek/approach; `SlimeCombinationController` handles reservation, blink, and spawn.
+
 ## Extension checklist
 
 ### New AI only (same tier rules)
@@ -188,7 +209,7 @@ On `EnemyBrain`:
 
 1. Add the next numeric value to `EnemyTier`.
 2. Duplicate the previous tier shell prefab and config.
-3. Wire `SlimeTierLinks` with `tierDownPrefab`, optional `tierUpPrefab`, `pickupPiecePrefab`, and `pickupRemainderPrefab`.
+3. Wire `SlimeTierLinks` with `tierDownPrefab`, optional `tierUpPrefab`, `pickupPiecePrefab`, `pickupRemainderPrefab`, and merge rules if this tier can combine.
 4. Use `SlimeTierInteractions` for pickup/hit behavior unless the tier needs a nonstandard rule.
 
 ### Slime types later
@@ -207,7 +228,7 @@ On `EnemyBrain`:
 |--------|---------|
 | `*Behavior` | AI strategy classes |
 | `*Config` | ScriptableObject tuning assets and their C# type |
-| `*Settings` | Serializable Inspector override blocks |
+| `*Settings` | Serializable Inspector override blocks (`ChaseAndShootSettings`, `CombineSettings`) |
 | `*Interactions` | Handler components for pickup/throw exceptions |
 | `*Links` | Prefab graph data for tier transitions |
 

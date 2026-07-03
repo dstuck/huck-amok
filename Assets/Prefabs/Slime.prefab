@@ -287,6 +287,12 @@ MonoBehaviour:
   pickupRemainderPrefab: {fileID: 0}
   pickupRemainderOffset: {x: 0.15, y: 0}
   canAutoCombine: 1
+  combineSettings:
+    seekRadius: 0.6
+    touchDistance: 0.09
+    decisionChance: 0.5
+    blinkDuration: 1
+  mergeRules: []
 --- !u!114 &1195771132646784505
 MonoBehaviour:
   m_ObjectHideFlags: 0

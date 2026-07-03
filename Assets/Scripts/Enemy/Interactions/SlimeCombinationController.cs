@@ -2,12 +2,12 @@ using System.Collections;
 using UnityEngine;
 
 /// <summary>
-/// Handles partner reservation and merge execution. Only tier-1 slimes with
-/// <see cref="SlimeTierLinks.CanAutoCombine"/> initiate merges. Higher-tier slimes
-/// can be reserved as passive partners (e.g. tier 1 + tier 2 → tier 3).
+/// Handles partner reservation and merge execution. Only slimes with
+/// <see cref="SlimeTierLinks.CanAutoCombine"/> at tier 1 initiate merges.
+/// Seek/approach movement is driven by <see cref="WanderAndCombineBehavior"/>.
 /// </summary>
 [RequireComponent(typeof(Enemy), typeof(SlimeTierLinks))]
-public class SlimeCombinationController : MonoBehaviour
+public class SlimeCombinationController : MonoBehaviour, IEnemyCombineParticipant
 {
     private Enemy enemy;
     private EnemyBrain brain;
@@ -22,6 +22,9 @@ public class SlimeCombinationController : MonoBehaviour
     public bool CanInitiateCombine =>
         links != null && links.CanAutoCombine && (int)enemy.Tier == 1;
 
+    public CombineTuning CombineTuning =>
+        links != null ? links.Combine.ToTuning() : new CombineTuning(0.6f, 0.09f, 0.5f, 1f);
+
     private void Awake()
     {
         enemy = GetComponent<Enemy>();
@@ -30,6 +33,9 @@ public class SlimeCombinationController : MonoBehaviour
         links = GetComponent<SlimeTierLinks>();
         composition = GetComponent<SlimeComposition>();
     }
+
+    public bool IsAllowedPartnerTier(int partnerTier) =>
+        links != null && links.IsAllowedPartnerTier(partnerTier);
 
     public bool IsAvailableAsPartner()
     {
@@ -42,9 +48,6 @@ public class SlimeCombinationController : MonoBehaviour
         return invulnerability == null || !invulnerability.IsInvulnerable;
     }
 
-    /// <summary>
-    /// Tier-1 initiator only. Finds a tier-1 or tier-2 partner within range and reserves it.
-    /// </summary>
     public Transform TryReservePartner(float seekRadius)
     {
         if (!CanInitiateCombine || IsCombining || reservedPartner != null)
@@ -69,7 +72,7 @@ public class SlimeCombinationController : MonoBehaviour
                 continue;
 
             int candidateTier = (int)candidate.enemy.Tier;
-            if (candidateTier != 1 && candidateTier != 2)
+            if (!links.IsAllowedPartnerTier(candidateTier))
                 continue;
 
             if (!candidate.IsAvailableAsPartner())
@@ -133,7 +136,6 @@ public class SlimeCombinationController : MonoBehaviour
         brain?.Resume();
     }
 
-    /// <summary>Called by the tier-1 initiator once the pair is touching.</summary>
     public void StartMerge()
     {
         if (!CanInitiateCombine || IsCombining || !HasReservedPartner)
@@ -158,8 +160,7 @@ public class SlimeCombinationController : MonoBehaviour
         invulnerability?.SetFlickerOverride(true);
         other.invulnerability?.SetFlickerOverride(true);
 
-        float blinkDuration = ResolveBlinkDuration();
-        yield return new WaitForSeconds(blinkDuration);
+        yield return new WaitForSeconds(CombineTuning.BlinkDuration);
 
         if (other == null || other.enemy.GetState() != EnemyState.Active || enemy.GetState() != EnemyState.Active)
         {
@@ -167,7 +168,7 @@ public class SlimeCombinationController : MonoBehaviour
             yield break;
         }
 
-        var mergePrefab = ResolveMergePrefab(other);
+        var mergePrefab = links.ResolveMergePrefab((int)other.enemy.Tier, other.links);
         if (mergePrefab == null)
         {
             AbortMerge();
@@ -187,25 +188,6 @@ public class SlimeCombinationController : MonoBehaviour
 
         Destroy(other.gameObject);
         Destroy(gameObject);
-    }
-
-    private GameObject ResolveMergePrefab(SlimeCombinationController partner)
-    {
-        int partnerTier = (int)partner.enemy.Tier;
-
-        if (partnerTier == 1)
-            return links.TierUpPrefab;
-
-        if (partnerTier == 2)
-            return partner.links.TierUpPrefab;
-
-        return null;
-    }
-
-    private float ResolveBlinkDuration()
-    {
-        var config = brain != null ? brain.Config : null;
-        return config != null ? config.combineBlinkDuration : 1f;
     }
 
     private void AbortMerge()

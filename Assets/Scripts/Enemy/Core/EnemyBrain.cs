@@ -6,7 +6,7 @@ public class EnemyBrain : MonoBehaviour
     [SerializeReference] private EnemyBehavior behavior = new WanderBehavior();
     [SerializeField] private EnemyConfig config;
 
-    [Header("Chase And Shoot (double slime)")]
+    [Header("Chase And Shoot Overrides")]
     [SerializeField] private bool useChaseAndShootOverrides;
     [SerializeField] private ChaseAndShootSettings chaseAndShootOverrides = new ChaseAndShootSettings();
 
@@ -66,9 +66,9 @@ public class EnemyBrain : MonoBehaviour
         if (paused || enemy.GetState() != EnemyState.Active)
             return;
 
-        if (GetComponent<InvulnerabilityController>() is { IsInvulnerable: true } invuln
-            && behavior is not WanderBehavior
-            && behavior is not WanderAndCombineBehavior)
+        if (GetComponent<InvulnerabilityController>() is { IsInvulnerable: true }
+            && behavior != null
+            && !behavior.TickDuringInvulnerability)
         {
             return;
         }
