@@ -5,7 +5,7 @@ using UnityEngine;
 public class Enemy : MonoBehaviour
 {
     [Header("Identity")]
-    [SerializeField] private EnemyTier tier = EnemyTier.Small;
+    [SerializeField] private EnemyTier tier = EnemyTier.Tier1;
 
     [Header("Throw")]
     [SerializeField] private float throwTimeout = 0.5f;
@@ -117,6 +117,9 @@ public class Enemy : MonoBehaviour
     public bool CanBePickedUp()
     {
         if (currentState != EnemyState.Active)
+            return false;
+
+        if (TryGetComponent<IEnemyCombineParticipant>(out var combination) && combination.IsCombining)
             return false;
 
         if (invulnerability != null && invulnerability.IsInvulnerable)
@@ -256,7 +259,7 @@ public class Enemy : MonoBehaviour
             return;
         }
 
-        if (tier == EnemyTier.Small && otherEnemy.tier == EnemyTier.Small)
+        if ((int)tier == 1 && (int)otherEnemy.tier == 1)
         {
             CancelThrowAndDestroySelf();
             Destroy(otherEnemy.gameObject);

@@ -21,10 +21,10 @@ and be held above the character. When thrown they should remain inactive while f
 - [x] slimes animate while moving
 
 0.3 Stacked Enemies
-- [x] grabbing a medium slime will split it into 1 in your hands and another as the remainder (1 small one for now)
-- [x] hitting a medium slime with another will reduce it to a small slime
+- [x] grabbing a tier-2 slime will split it into one tier-1 slime in your hands and another as the remainder
+- [x] hitting a tier-2 slime with another will reduce it to a tier-1 slime
 - [x] hitting or grabbing a slime will trigger a invulnerable frames (visualized by flashing) so you can't immediately throw the slime at it [this will be shared behavior with player soon]
-- [x] medium slimes will shoot short distance slime balls at the player
+- [x] tier-2 slimes will shoot short distance slime balls at the player
     - while in detection radius moves toward player
     - while in firing radius flickers, shoots a slime ball, repeats after a delay
 
@@ -38,7 +38,8 @@ and be held above the character. When thrown they should remain inactive while f
 - [x] Add success state when all slimes are defeated
 
 0.5 Enemy combination
-- [ ] single slimes within a certain distance will combine into medium slime
+- [x] tier-1 slimes within a certain distance combine into tier-2 slime
+- [x] add tier-3 slime that shoots faster and splits into tier-1 held + tier-2 remainder
 
 
 0.6 Enemy types
@@ -47,4 +48,4 @@ and be held above the character. When thrown they should remain inactive while f
     - [ ] multi shot
     - [ ] trailing
 - [ ] Refactor slime colors
-- [ ] Larger slime colors set by components
+- [ ] Higher-tier slime colors set by components

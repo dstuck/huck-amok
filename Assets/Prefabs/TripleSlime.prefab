@@ -16,12 +16,11 @@ GameObject:
   - component: {fileID: 711319066536835405}
   - component: {fileID: 4013283692429906807}
   - component: {fileID: 3994234524295946514}
-  - component: {fileID: 6549324978460792378}
-  - component: {fileID: 5459827552480004682}
-  - component: {fileID: 996124595756710860}
-  - component: {fileID: 3107986544586754392}
+  - component: {fileID: 1658097207957553538}
+  - component: {fileID: 8151390837941241702}
+  - component: {fileID: 8802779579051291445}
   m_Layer: 0
-  m_Name: DoubleSlime
+  m_Name: TripleSlime
   m_TagString: Enemy
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -37,7 +36,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: 2, y: 2, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
@@ -113,7 +112,7 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
-  m_Sprite: {fileID: 136906663704623072, guid: c6c5320ea3a3e4ce381965908f200553, type: 3}
+  m_Sprite: {fileID: -1070234036360988942, guid: 6b0f9d34c756c4971b9627d54c122c0b, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -161,8 +160,8 @@ BoxCollider2D:
   m_Offset: {x: 0, y: 0.07}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
-    pivot: {x: 0.5, y: 0.5}
-    oldSize: {x: 0.16, y: 0.21}
+    pivot: {x: 0.5, y: 0}
+    oldSize: {x: 0.16, y: 0.14}
     newSize: {x: 0.16, y: 0.14}
     adaptiveTilingThreshold: 0.5
     drawMode: 0
@@ -182,7 +181,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4c1d9eb3d3ff94a4e80636315c0a63f3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  tier: 2
+  tier: 3
   throwTimeout: 0.5
   directionChangeSmoothing: 3
   pickupSounds:
@@ -207,16 +206,16 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   behavior:
     rid: 1142036991949144364
-  config: {fileID: 11400000, guid: d4cac8f4d822547afb0efb4f4a22a7ca, type: 2}
+  config: {fileID: 11400000, guid: c9509cd1f04334d86bcce70244eaa33e, type: 2}
   useChaseAndShootOverrides: 1
   chaseAndShootOverrides:
-    moveSpeed: 0.25
-    detectionRadius: 2
+    moveSpeed: 0.2
+    detectionRadius: 1.75
     attackRadius: 1.2
     minAttackRadius: 0.3
     flickerDuration: 0.2
-    shootCooldown: 1.5
-    projectileSpeed: 0.9
+    shootCooldown: 0.5
+    projectileSpeed: 0.75
     projectileMaxRange: 1.2
   references:
     version: 2
@@ -237,10 +236,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   idleFrames:
-  - {fileID: -2490191300240213547, guid: c6c5320ea3a3e4ce381965908f200553, type: 3}
-  - {fileID: 136906663704623072, guid: c6c5320ea3a3e4ce381965908f200553, type: 3}
-  - {fileID: -7545557624716020041, guid: c6c5320ea3a3e4ce381965908f200553, type: 3}
-  - {fileID: 4169359422347663551, guid: c6c5320ea3a3e4ce381965908f200553, type: 3}
+  - {fileID: -1070234036360988942, guid: 6b0f9d34c756c4971b9627d54c122c0b, type: 3}
+  - {fileID: -1911208831069911435, guid: 6b0f9d34c756c4971b9627d54c122c0b, type: 3}
+  - {fileID: 3139962496748581616, guid: 6b0f9d34c756c4971b9627d54c122c0b, type: 3}
+  - {fileID: -7030510787030407499, guid: 6b0f9d34c756c4971b9627d54c122c0b, type: 3}
   frameDuration: 0.15
   speedVariation: 0.25
   idleSpeedMultiplier: 0
@@ -258,7 +257,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   defaultDuration: 0.5
   flashInterval: 0.08
---- !u!114 &6549324978460792378
+--- !u!114 &1658097207957553538
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -270,7 +269,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 757357f363d424cd78075bada7424ba5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!114 &5459827552480004682
+--- !u!114 &8151390837941241702
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -282,13 +281,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 387cb49b743c14b3ab635d2b366de87e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  tierUpPrefab: {fileID: 5439509473600276826, guid: 29b8c2821a97044c2b782ebc99255893, type: 3}
-  tierDownPrefab: {fileID: 5439509473600276826, guid: d00ab7cd8fab0430db346246565b67b1, type: 3}
+  tierUpPrefab: {fileID: 0}
+  tierDownPrefab: {fileID: 5439509473600276826, guid: 7828fe53113274474aa3c7ee027cfb93, type: 3}
   pickupPiecePrefab: {fileID: 5439509473600276826, guid: d00ab7cd8fab0430db346246565b67b1, type: 3}
-  pickupRemainderPrefab: {fileID: 5439509473600276826, guid: d00ab7cd8fab0430db346246565b67b1, type: 3}
+  pickupRemainderPrefab: {fileID: 5439509473600276826, guid: 7828fe53113274474aa3c7ee027cfb93, type: 3}
   pickupRemainderOffset: {x: 0.15, y: 0}
   canAutoCombine: 0
---- !u!114 &996124595756710860
+--- !u!114 &8802779579051291445
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -298,17 +297,5 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 669fab7ba77214528ac69b7eee5a0bc6, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
---- !u!114 &3107986544586754392
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5439509473600276826}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 11eac02fdb61d487d99187858d7ba5f5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 

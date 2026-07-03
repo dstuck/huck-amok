@@ -16,6 +16,9 @@ GameObject:
   - component: {fileID: 4623304076422149143}
   - component: {fileID: 4697180970508227396}
   - component: {fileID: 3623471281955671292}
+  - component: {fileID: 6624451300673932621}
+  - component: {fileID: 7437788001463295813}
+  - component: {fileID: 1195771132646784505}
   m_Layer: 0
   m_Name: Slime
   m_TagString: Enemy
@@ -178,7 +181,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4c1d9eb3d3ff94a4e80636315c0a63f3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  tier: 0
+  tier: 1
   throwTimeout: 0.5
   directionChangeSmoothing: 3
   pickupSounds:
@@ -202,7 +205,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   behavior:
-    rid: 1142036991949144362
+    rid: 1142036991949144475
   config: {fileID: 11400000, guid: 7abdbc9529372438d9172a93cc26d552, type: 2}
   useChaseAndShootOverrides: 0
   chaseAndShootOverrides:
@@ -217,8 +220,8 @@ MonoBehaviour:
   references:
     version: 2
     RefIds:
-    - rid: 1142036991949144362
-      type: {class: WanderBehavior, ns: , asm: Assembly-CSharp}
+    - rid: 1142036991949144475
+      type: {class: WanderAndCombineBehavior, ns: , asm: Assembly-CSharp}
       data: 
 --- !u!114 &4697180970508227396
 MonoBehaviour:
@@ -254,3 +257,51 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   defaultDuration: 0.5
   flashInterval: 0.08
+--- !u!114 &6624451300673932621
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5439509473600276826}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 757357f363d424cd78075bada7424ba5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &7437788001463295813
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5439509473600276826}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 387cb49b743c14b3ab635d2b366de87e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  tierUpPrefab: {fileID: 5439509473600276826, guid: 7828fe53113274474aa3c7ee027cfb93, type: 3}
+  tierDownPrefab: {fileID: 0}
+  pickupPiecePrefab: {fileID: 0}
+  pickupRemainderPrefab: {fileID: 0}
+  pickupRemainderOffset: {x: 0.15, y: 0}
+  canAutoCombine: 1
+  combineSettings:
+    seekRadius: 0.6
+    touchDistance: 0.09
+    decisionChance: 0.5
+    blinkDuration: 1
+  mergeRules: []
+--- !u!114 &1195771132646784505
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5439509473600276826}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 11eac02fdb61d487d99187858d7ba5f5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 

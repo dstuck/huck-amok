@@ -1,5 +1,6 @@
 public enum EnemyTier
 {
-    Small,
-    Medium
+    Tier1 = 1,
+    Tier2 = 2,
+    Tier3 = 3
 }
