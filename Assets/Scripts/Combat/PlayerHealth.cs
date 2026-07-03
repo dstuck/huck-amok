@@ -1,10 +1,12 @@
 using System;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 public class PlayerHealth : MonoBehaviour, IDamageable
 {
     [SerializeField] private int maxHealth = 3;
-    [SerializeField] private AudioClip[] hitSounds;
+    [FormerlySerializedAs("hitSounds")]
+    [SerializeField] private AudioClip[] hurtSounds;
 
     private int currentHealth;
     private InvulnerabilityController invulnerability;
@@ -32,10 +34,10 @@ public class PlayerHealth : MonoBehaviour, IDamageable
         currentHealth = Mathf.Max(0, currentHealth - amount);
         OnHealthChanged?.Invoke(currentHealth, maxHealth);
 
-        if (hitSounds != null && hitSounds.Length > 0 && SoundFXManager.Instance != null)
+        if (hurtSounds != null && hurtSounds.Length > 0 && SoundFXManager.Instance != null)
         {
             SoundFXManager.Instance.PlayRandomSoundFXClip(
-                hitSounds,
+                hurtSounds,
                 transform,
                 category: SfxCategory.Hurt);
         }

@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -10,7 +11,8 @@ public class HealthHUD : MonoBehaviour
 
     private UIDocument uiDocument;
     private VisualElement heartsContainer;
-    private VisualElement[] hearts;
+    private readonly List<VisualElement> hearts = new();
+    private int builtForMaxHealth;
 
     private void Awake()
     {
@@ -38,7 +40,8 @@ public class HealthHUD : MonoBehaviour
     {
         yield return null;
 
-        CacheHeartElements();
+        int maxHealth = playerHealth != null ? playerHealth.MaxHealth : 0;
+        EnsureHearts(maxHealth);
         ApplyHeartLayout();
 
         if (playerHealth != null)
@@ -54,12 +57,37 @@ public class HealthHUD : MonoBehaviour
         ApplyHeartLayout();
     }
 
+    private void EnsureHearts(int maxHealth)
+    {
+        if (heartsContainer == null)
+            CacheHeartsContainer();
+
+        if (heartsContainer == null || maxHealth <= 0)
+            return;
+
+        if (builtForMaxHealth == maxHealth && hearts.Count == maxHealth)
+            return;
+
+        heartsContainer.Clear();
+        hearts.Clear();
+
+        for (int i = 0; i < maxHealth; i++)
+        {
+            var heart = new VisualElement { name = $"heart-{i + 1}" };
+            heart.AddToClassList("heart");
+            heartsContainer.Add(heart);
+            hearts.Add(heart);
+        }
+
+        builtForMaxHealth = maxHealth;
+    }
+
     private void ApplyHeartLayout()
     {
-        if (heartsContainer == null || hearts == null)
-            CacheHeartElements();
+        if (heartsContainer == null)
+            CacheHeartsContainer();
 
-        if (heartsContainer == null || hearts == null)
+        if (heartsContainer == null || hearts.Count == 0)
             return;
 
         float screenWidth = uiDocument.rootVisualElement.resolvedStyle.width;
@@ -78,9 +106,6 @@ public class HealthHUD : MonoBehaviour
 
         foreach (var heart in hearts)
         {
-            if (heart == null)
-                continue;
-
             heart.style.width = heartSize;
             heart.style.height = heartSize;
             heart.style.flexGrow = 0;
@@ -93,7 +118,7 @@ public class HealthHUD : MonoBehaviour
         }
     }
 
-    private void CacheHeartElements()
+    private void CacheHeartsContainer()
     {
         var root = uiDocument.rootVisualElement;
         if (root == null)
@@ -104,30 +129,14 @@ public class HealthHUD : MonoBehaviour
             return;
 
         heartsContainer = hudRoot.Q<VisualElement>("hearts-container");
-        hearts = new[]
-        {
-            hudRoot.Q<VisualElement>("heart-1"),
-            hudRoot.Q<VisualElement>("heart-2"),
-            hudRoot.Q<VisualElement>("heart-3")
-        };
     }
 
     private void HandleHealthChanged(int currentHealth, int maxHealth)
     {
-        if (hearts == null)
-            CacheHeartElements();
-
+        EnsureHearts(maxHealth);
         ApplyHeartLayout();
 
-        if (hearts == null)
-            return;
-
-        for (int i = 0; i < hearts.Length; i++)
-        {
-            if (hearts[i] == null)
-                continue;
-
+        for (int i = 0; i < hearts.Count; i++)
             hearts[i].style.display = i < currentHealth ? DisplayStyle.Flex : DisplayStyle.None;
-        }
     }
 }

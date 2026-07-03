@@ -29,13 +29,13 @@ and be held above the character. When thrown they should remain inactive while f
     - while in firing radius flickers, shoots a slime ball, repeats after a delay
 
 0.4 Damage
-- [ ] player has 3 hearts with UI display
-- [ ] damaged by projectiles
-- [ ] projectiles immediately splat when they hit the player
-- [ ] add invulnerable frames
-- [ ] add sound for shots, hit
-- [ ] add gameover state when all three hearts are lost that restarts at the beginning
-- [ ] Add success state when all slimes are defeated
+- [x] player has 3 hearts with UI display
+- [x] damaged by projectiles
+- [x] projectiles immediately splat when they hit the player
+- [x] add invulnerable frames
+- [x] add sound for shots, hit
+- [x] add gameover state when all three hearts are lost that restarts at the beginning
+- [x] Add success state when all slimes are defeated
 
 0.5 Enemy combination
 - [ ] single slimes within a certain distance will combine into medium slime

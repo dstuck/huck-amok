@@ -1,5 +1,8 @@
 .idea
 
+# macOS
+.DS_Store
+
 *.ulf
 /[Ll]ibrary/
 /[Tt]emp/
