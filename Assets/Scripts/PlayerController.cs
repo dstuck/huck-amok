@@ -9,6 +9,7 @@ public enum Direction
     West
 }
 
+[RequireComponent(typeof(Rigidbody2D))]
 public class PlayerController : MonoBehaviour, InputSystem_Actions.IPlayerActions
 {
     [Header("Movement")]
@@ -26,6 +27,7 @@ public class PlayerController : MonoBehaviour, InputSystem_Actions.IPlayerAction
     private Direction currentFacing = Direction.South;
     private Enemy heldEnemy;
     private bool isCarrying = false;
+    private Rigidbody2D rb2d;
     private Collider2D playerCollider;
     private SpriteRenderer playerSpriteRenderer;
     private PlayerAnimator playerAnimator;
@@ -37,6 +39,7 @@ public class PlayerController : MonoBehaviour, InputSystem_Actions.IPlayerAction
     public Direction CurrentFacing => currentFacing;
     public bool IsCarrying => isCarrying;
     public bool IsMoving => moveInput.magnitude > 0.1f;
+    public Vector2 WorldPosition => rb2d.position;
 
     /// <summary>
     /// Raw facing for blend trees: normalized input while moving, cardinal facing when idle.
@@ -48,6 +51,7 @@ public class PlayerController : MonoBehaviour, InputSystem_Actions.IPlayerAction
     {
         inputActions = new InputSystem_Actions();
         inputActions.Player.SetCallbacks(this);
+        rb2d = KinematicBody2D.Configure(gameObject);
         playerCollider = GetComponent<Collider2D>();
         playerSpriteRenderer = GetComponent<SpriteRenderer>();
         playerAnimator = GetComponent<PlayerAnimator>();
@@ -60,7 +64,6 @@ public class PlayerController : MonoBehaviour, InputSystem_Actions.IPlayerAction
     
     private void Start()
     {
-        // Initialize animator with current state
         if (playerAnimator != null)
         {
             playerAnimator.OnDirectionChanged(currentFacing);
@@ -76,15 +79,25 @@ public class PlayerController : MonoBehaviour, InputSystem_Actions.IPlayerAction
     
     private void Update()
     {
-        HandleMovement();
+        if (GameManager.Instance != null && GameManager.Instance.State != GameplayState.Playing)
+            return;
+
+        HandleFacingAndAnimation();
         UpdateHeldObjectPosition();
     }
+
+    private void FixedUpdate()
+    {
+        if (GameManager.Instance != null && GameManager.Instance.State != GameplayState.Playing)
+            return;
+
+        ApplyMovement();
+    }
     
-    private void HandleMovement()
+    private void HandleFacingAndAnimation()
     {
         bool isMoving = moveInput.magnitude > 0.1f;
 
-        // Update facing from input even before movement threshold (static direction while idle)
         if (moveInput.sqrMagnitude > 0.01f)
         {
             Direction newFacing = GetDirectionFromVector(moveInput);
@@ -95,38 +108,28 @@ public class PlayerController : MonoBehaviour, InputSystem_Actions.IPlayerAction
                 playerAnimator?.OnDirectionChanged(currentFacing);
             }
         }
-        
-        if (isMoving)
-        {
-            // Move the player
-            Vector2 movement = moveInput.normalized * moveSpeed * Time.deltaTime;
-            transform.Translate(movement);
-        }
-        
-        if (isMoving)
-        {
-            playerAnimator?.OnMovementStateChanged(true);
-        }
-        else
-        {
-            playerAnimator?.OnMovementStateChanged(false);
-        }
+
+        playerAnimator?.OnMovementStateChanged(isMoving);
+    }
+
+    private void ApplyMovement()
+    {
+        if (moveInput.sqrMagnitude < 0.01f)
+            return;
+
+        Vector2 movement = moveInput.normalized * moveSpeed * Time.fixedDeltaTime;
+        KinematicBody2D.MoveBy(rb2d, movement);
     }
     
     private Direction GetDirectionFromVector(Vector2 input)
     {
-        // Determine primary direction based on input
         float absX = Mathf.Abs(input.x);
         float absY = Mathf.Abs(input.y);
         
         if (absX > absY)
-        {
             return input.x > 0 ? Direction.East : Direction.West;
-        }
-        else
-        {
-            return input.y > 0 ? Direction.North : Direction.South;
-        }
+
+        return input.y > 0 ? Direction.North : Direction.South;
     }
     
     private Vector2 GetDirectionVector(Direction dir)
@@ -148,26 +151,17 @@ public class PlayerController : MonoBehaviour, InputSystem_Actions.IPlayerAction
     
     private Vector2 GetEdgePosition(Direction facing)
     {
-        Vector2 center = transform.position;
+        Vector2 center = rb2d.position;
         Bounds bounds;
         Vector2 facingDir = GetDirectionVector(facing);
         
-        // Get bounds from collider or sprite renderer
         if (playerCollider != null)
-        {
             bounds = playerCollider.bounds;
-        }
         else if (playerSpriteRenderer != null)
-        {
             bounds = playerSpriteRenderer.bounds;
-        }
         else
-        {
-            // Fallback: use a small offset from center
             return center + facingDir * 0.1f;
-        }
         
-        // Get the edge point and offset slightly beyond to avoid hitting own collider
         Vector2 edgePos;
         
         switch (facing)
@@ -189,21 +183,20 @@ public class PlayerController : MonoBehaviour, InputSystem_Actions.IPlayerAction
                 break;
         }
         
-        // Offset slightly beyond the edge to avoid hitting own collider
         return edgePos + facingDir * 0.01f;
     }
     
     private void UpdateHeldObjectPosition()
     {
         if (heldEnemy != null)
-        {
-            Vector2 offset = heldOffset;
-            heldEnemy.transform.position = (Vector2)transform.position + offset;
-        }
+            heldEnemy.SetWorldPosition(rb2d.position + heldOffset);
     }
     
     private void AttemptPickup()
     {
+        if (GameManager.Instance != null && GameManager.Instance.State != GameplayState.Playing)
+            return;
+
         if (heldEnemy != null)
         {
             ThrowHeldObject();
@@ -211,9 +204,10 @@ public class PlayerController : MonoBehaviour, InputSystem_Actions.IPlayerAction
         }
         
         Vector2 direction = GetDirectionVector(currentFacing);
+        Vector2 playerPosition = rb2d.position;
         
         float overlapRadius = Mathf.Max(pickupRange * 2f, 0.2f);
-        Collider2D[] overlaps = Physics2D.OverlapCircleAll(transform.position, overlapRadius, pickupLayerMask);
+        Collider2D[] overlaps = Physics2D.OverlapCircleAll(playerPosition, overlapRadius, pickupLayerMask);
         Enemy closestEnemy = null;
         float closestDistance = float.MaxValue;
         
@@ -224,12 +218,12 @@ public class PlayerController : MonoBehaviour, InputSystem_Actions.IPlayerAction
             Enemy enemy = col.GetComponent<Enemy>();
             if (enemy != null && enemy.CanBePickedUp())
             {
-                Vector2 toEnemy = ((Vector2)col.transform.position - (Vector2)transform.position).normalized;
+                Vector2 toEnemy = ((Vector2)col.transform.position - playerPosition).normalized;
                 float dot = Vector2.Dot(direction, toEnemy);
                 
                 if (dot > 0.3f)
                 {
-                    float distance = Vector2.Distance(transform.position, col.transform.position);
+                    float distance = Vector2.Distance(playerPosition, col.transform.position);
                     if (distance < closestDistance)
                     {
                         closestDistance = distance;
@@ -246,7 +240,6 @@ public class PlayerController : MonoBehaviour, InputSystem_Actions.IPlayerAction
         }
         
         Vector2 raycastStart = GetEdgePosition(currentFacing);
-        
         int playerLayer = gameObject.layer;
         LayerMask excludePlayerMask = pickupLayerMask & ~(1 << playerLayer);
         
@@ -256,9 +249,7 @@ public class PlayerController : MonoBehaviour, InputSystem_Actions.IPlayerAction
         {
             Enemy enemy = hit.collider.GetComponent<Enemy>();
             if (enemy != null && enemy.CanBePickedUp())
-            {
                 PickupEnemy(enemy);
-            }
         }
     }
     
@@ -287,9 +278,7 @@ public class PlayerController : MonoBehaviour, InputSystem_Actions.IPlayerAction
         if (heldEnemy == null) return;
         
         Vector2 throwDirection = GetDirectionVector(currentFacing);
-        Vector2 throwStartPosition = GetThrowStartPosition();
-        heldEnemy.transform.position = throwStartPosition;
-        
+        heldEnemy.SetWorldPosition(GetThrowStartPosition());
         heldEnemy.OnThrown(throwDirection, throwDistance, throwSpeed);
         heldEnemy = null;
         isCarrying = false;
@@ -299,24 +288,15 @@ public class PlayerController : MonoBehaviour, InputSystem_Actions.IPlayerAction
     
     private Vector2 GetThrowStartPosition()
     {
-        Vector2 playerPos = transform.position;
+        Vector2 playerPos = rb2d.position;
         Vector2 direction = GetDirectionVector(currentFacing);
         
-        // For left/right: place at same Y level, but offset in X direction (in front)
-        // For up/down: place overlapping player (same position)
         if (currentFacing == Direction.East || currentFacing == Direction.West)
-        {
-            // Same Y level, offset in X direction
             return new Vector2(playerPos.x + direction.x * 0.1f, playerPos.y);
-        }
-        else
-        {
-            // Up/Down: overlapping player initially
-            return playerPos;
-        }
+
+        return playerPos;
     }
     
-    // Input System callbacks
     public void OnMove(InputAction.CallbackContext context)
     {
         moveInput = context.ReadValue<Vector2>();
@@ -325,14 +305,11 @@ public class PlayerController : MonoBehaviour, InputSystem_Actions.IPlayerAction
     public void OnPickup(InputAction.CallbackContext context)
     {
         if (context.performed)
-        {
             AttemptPickup();
-        }
     }
     
     public void OnSprint(InputAction.CallbackContext context)
     {
-        // Not used in v0.1, but required by interface
     }
     
     private void OnDestroy()
@@ -340,4 +317,3 @@ public class PlayerController : MonoBehaviour, InputSystem_Actions.IPlayerAction
         inputActions?.Dispose();
     }
 }
-

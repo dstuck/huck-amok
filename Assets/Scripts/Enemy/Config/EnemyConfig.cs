@@ -24,4 +24,7 @@ public class EnemyConfig : ScriptableObject
     public GameObject projectilePrefab;
     public float projectileSpeed = 2f;
     public float projectileMaxRange = 3f;
+
+    [Header("Audio")]
+    public AudioClip[] shootSounds;
 }

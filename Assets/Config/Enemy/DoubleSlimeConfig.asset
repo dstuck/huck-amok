@@ -26,3 +26,9 @@ MonoBehaviour:
   projectilePrefab: {fileID: 5174344487228000109, guid: fab6355b7c7634e75a368cb02ffcfda1, type: 3}
   projectileSpeed: 1.4
   projectileMaxRange: 3
+  shootSounds:
+  - {fileID: 8300000, guid: 12c4a30e21cf24796a840cd03d694f81, type: 3}
+  - {fileID: 8300000, guid: e79f24166ebd04ac38753356ca58673d, type: 3}
+  - {fileID: 8300000, guid: a32d93e92a51c4fc2a7801297cd41cdf, type: 3}
+  - {fileID: 8300000, guid: d8b1b34c162f74af399076e5db7c0597, type: 3}
+  - {fileID: 8300000, guid: 7cf496105aa95438f911b746628b9006, type: 3}

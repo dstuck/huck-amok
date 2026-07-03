@@ -162,7 +162,7 @@ BoxCollider2D:
     drawMode: 0
     adaptiveTiling: 0
   m_AutoTiling: 0
-  m_Size: {x: 0.0001, y: 0.0001}
+  m_Size: {x: 0.08, y: 0.08}
   m_EdgeRadius: 0
 --- !u!114 &1503636281157302760
 MonoBehaviour:
@@ -176,6 +176,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f1b0033ec9e634e628d1e6444ac52a58, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  splatDuration: 0.3
+  splatSounds:
+  - {fileID: 8300000, guid: 1c674475c39a440c2b1c4f4b5b9760f2, type: 3}
+  - {fileID: 8300000, guid: 77ce89febf76f43bcb48d2e44ca4800e, type: 3}
+  - {fileID: 8300000, guid: 9bb01cdd252d540a796939725cf208f2, type: 3}
 --- !u!114 &8988992794506010343
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -193,9 +198,7 @@ MonoBehaviour:
   - {fileID: 5806373422478916817, guid: afbbf8a5c6d4640f6a0ebe6cfec1e953, type: 3}
   - {fileID: 2609840329433783607, guid: afbbf8a5c6d4640f6a0ebe6cfec1e953, type: 3}
   - {fileID: -3096975212704682582, guid: afbbf8a5c6d4640f6a0ebe6cfec1e953, type: 3}
-  cycleDuration: 0.4
-  frameWeights:
+  flyingFrameWeights:
   - 0.5
   - 0.25
   - 0.15
-  - 0.1

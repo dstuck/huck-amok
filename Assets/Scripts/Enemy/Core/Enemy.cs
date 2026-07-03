@@ -13,6 +13,10 @@ public class Enemy : MonoBehaviour
     [Header("Movement")]
     [SerializeField] private float directionChangeSmoothing = 3f;
 
+    [Header("Audio")]
+    [SerializeField] private AudioClip[] pickupSounds;
+    [SerializeField] private AudioClip[] hitSounds;
+
     private EnemyState currentState = EnemyState.Active;
     private EnemyMovementState movementState = EnemyMovementState.Idle;
     private Vector2 currentDirection = Vector2.zero;
@@ -33,22 +37,28 @@ public class Enemy : MonoBehaviour
     public EnemyTier Tier => tier;
     public EnemyState CurrentState => currentState;
     public bool IsMoving => movementState != EnemyMovementState.Idle;
+    public Vector2 WorldPosition => rb2d.position;
 
     private void Awake()
     {
-        rb2d = GetComponent<Rigidbody2D>();
-        if (rb2d == null)
-        {
-            rb2d = gameObject.AddComponent<Rigidbody2D>();
-            rb2d.isKinematic = true;
-            rb2d.gravityScale = 0f;
-        }
-
+        rb2d = KinematicBody2D.Configure(gameObject);
         invulnerability = GetComponent<InvulnerabilityController>();
         brain = GetComponent<EnemyBrain>();
     }
 
-    private void Update()
+    private void OnEnable()
+    {
+        if (GameManager.Instance != null && GameManager.HasStarted)
+            GameManager.Instance.RegisterEnemy();
+    }
+
+    private void OnDestroy()
+    {
+        if (GameManager.Instance != null)
+            GameManager.Instance.UnregisterEnemy();
+    }
+
+    private void FixedUpdate()
     {
         if (currentState == EnemyState.Thrown)
             UpdateThrownMovement();
@@ -64,12 +74,12 @@ public class Enemy : MonoBehaviour
         currentDirection = Vector2.Lerp(
             currentDirection,
             targetDirection,
-            directionChangeSmoothing * Time.deltaTime);
+            directionChangeSmoothing * Time.fixedDeltaTime);
 
         if (currentDirection.sqrMagnitude > 0.0001f)
             currentDirection.Normalize();
 
-        transform.Translate(currentDirection * currentMoveSpeed * Time.deltaTime);
+        KinematicBody2D.MoveBy(rb2d, currentDirection * currentMoveSpeed * Time.fixedDeltaTime);
     }
 
     public void SetMovement(Vector2 worldDirection, float speed, EnemyMovementState state)
@@ -86,6 +96,22 @@ public class Enemy : MonoBehaviour
         currentDirection = Vector2.zero;
         targetDirection = Vector2.zero;
         currentMoveSpeed = 0f;
+    }
+
+    public void SetWorldPosition(Vector2 worldPosition)
+    {
+        KinematicBody2D.SetPosition(rb2d, worldPosition);
+    }
+
+    public void PlayHitSound()
+    {
+        if (hitSounds == null || hitSounds.Length == 0 || SoundFXManager.Instance == null)
+            return;
+
+        SoundFXManager.Instance.PlayRandomSoundFXClip(
+            hitSounds,
+            transform,
+            category: SfxCategory.EnemyHit);
     }
 
     public bool CanBePickedUp()
@@ -129,6 +155,14 @@ public class Enemy : MonoBehaviour
         var col = GetComponent<Collider2D>();
         if (col != null)
             col.enabled = false;
+
+        if (pickupSounds != null && pickupSounds.Length > 0 && SoundFXManager.Instance != null)
+        {
+            SoundFXManager.Instance.PlayRandomSoundFXClip(
+                pickupSounds,
+                transform,
+                category: SfxCategory.Pickup);
+        }
     }
 
     public void OnThrown(Vector2 direction, float distance, float speed)
@@ -158,8 +192,8 @@ public class Enemy : MonoBehaviour
 
     private void UpdateThrownMovement()
     {
-        float moveDistance = throwSpeed * Time.deltaTime;
-        transform.Translate(throwDirection * moveDistance);
+        float moveDistance = throwSpeed * Time.fixedDeltaTime;
+        KinematicBody2D.MoveBy(rb2d, throwDirection * moveDistance);
         throwDistanceTraveled += moveDistance;
 
         if (throwDistanceTraveled >= throwDistance)
@@ -212,6 +246,8 @@ public class Enemy : MonoBehaviour
 
         if (otherEnemy.invulnerability != null && otherEnemy.invulnerability.IsInvulnerable)
             return;
+
+        otherEnemy.PlayHitSound();
 
         var hitHandler = otherEnemy.GetComponent<IEnemyHitHandler>();
         if (hitHandler != null && hitHandler.OnEnemyHit(this, otherEnemy))
