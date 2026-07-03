@@ -80,7 +80,7 @@ public class EnemyAnimator : MonoBehaviour
         if (idleFrames != null && idleFrames.Length > 0)
             return;
 
-        string path = GetComponent<Enemy>()?.Tier == EnemyTier.Medium
+        string path = GetComponent<Enemy>()?.Tier == EnemyTier.Tier2
             ? "Assets/Sprites/doubleSlime.png"
             : "Assets/Sprites/sprSlimeIdle.png";
 

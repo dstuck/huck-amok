@@ -19,6 +19,11 @@ public class EnemyBrain : MonoBehaviour
     public float DirectionChangeSmoothing =>
         GetEffectiveConfig()?.directionChangeSmoothing ?? 3f;
 
+    public float MoveSpeed =>
+        GetEffectiveConfig()?.moveSpeed ?? 0.1f;
+
+    public EnemyConfig Config => GetEffectiveConfig();
+
     private void Awake()
     {
         enemy = GetComponent<Enemy>();
@@ -62,7 +67,8 @@ public class EnemyBrain : MonoBehaviour
             return;
 
         if (GetComponent<InvulnerabilityController>() is { IsInvulnerable: true } invuln
-            && behavior is not WanderBehavior)
+            && behavior is not WanderBehavior
+            && behavior is not WanderAndCombineBehavior)
         {
             return;
         }

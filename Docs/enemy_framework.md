@@ -19,10 +19,14 @@ Assets/Scripts/Enemy/
 ├── Config/                  # Data types (C# only; .asset files live elsewhere)
 │   ├── EnemyConfig.cs
 │   └── ChaseAndShootSettings.cs
-├── Interactions/            # Tier-specific pickup / thrown-hit rules
+├── Interactions/            # Tier-specific pickup / thrown-hit / combine rules
 │   ├── IEnemyPickupHandler.cs
 │   ├── IEnemyHitHandler.cs
-│   └── DoubleSlimeInteractions.cs
+│   ├── SlimeTierLinks.cs
+│   ├── SlimeTierInteractions.cs
+│   ├── SlimeCombinationController.cs
+│   ├── SlimeComposition.cs
+│   └── SlimeSpawnHelper.cs
 └── Presentation/
     └── EnemyAnimator.cs
 
@@ -32,8 +36,9 @@ Assets/Scripts/Combat/       # Shared combat utilities
 └── InvulnerabilityController.cs
 
 Assets/Config/Enemy/         # ScriptableObject tuning assets
-├── SmallSlimeConfig.asset
-└── DoubleSlimeConfig.asset
+├── Tier1SlimeConfig.asset
+├── Tier2SlimeConfig.asset
+└── Tier3SlimeConfig.asset
 ```
 
 ## Two-layer state model
@@ -77,7 +82,10 @@ flowchart TB
         InvulnerabilityController
         EnemyAnimator
         behaviorRef["SerializeReference EnemyBehavior"]
-        handler["Interactions handler optional"]
+        links["SlimeTierLinks"]
+        handler["SlimeTierInteractions optional"]
+        combiner["SlimeCombinationController optional"]
+        composition["SlimeComposition"]
     end
     subgraph behaviors [Behaviors]
         WanderBehavior
@@ -92,11 +100,16 @@ flowchart TB
     behaviorRef --> ChaseAndShootBehavior
     EnemyBrain --> EnemyConfigAsset
     EnemyBrain --> ChaseAndShootSettings
+    Enemy --> links
     Enemy --> handler
+    Enemy --> combiner
+    handler --> composition
+    combiner --> composition
 ```
 
-- **Small slime prefab**: `Enemy` + `WanderBehavior` + `SmallSlimeConfig`
-- **Double slime prefab**: `Enemy` + `ChaseAndShootBehavior` + `DoubleSlimeConfig` + `DoubleSlimeInteractions`
+- **Tier-1 slime prefab**: `Enemy` + `WanderBehavior` + `Tier1SlimeConfig` + `SlimeTierLinks` + `SlimeCombinationController`
+- **Tier-2 slime prefab**: `Enemy` + `ChaseAndShootBehavior` + `Tier2SlimeConfig` + `SlimeTierLinks` + `SlimeTierInteractions`
+- **Tier-3 slime prefab**: `Enemy` + `ChaseAndShootBehavior` + `Tier3SlimeConfig` + `SlimeTierLinks` + `SlimeTierInteractions`
 - **Future enemy**: new behavior class + config asset (+ optional interactions handler)
 
 ## Behaviors vs Config vs Interactions
@@ -135,10 +148,19 @@ Behaviors should stay tier-agnostic when possible. Push tier-specific rules into
 | `EnemyBehavior` | Abstract AI: `OnEnable`, `Tick`, `OnDisable` |
 | `EnemyConfig` | ScriptableObject with shared tuning fields |
 | `EnemyContext` | Per-tick API: distances, `Move`, `Chase`, `Stop`, `SpawnProjectile`, `SetFlicker` |
-| `ChaseAndShootSettings` | Serializable per-prefab overrides for double slime tuning |
-| `IEnemyPickupHandler` | Optional custom pickup (e.g. medium split) |
-| `IEnemyHitHandler` | Optional custom thrown-hit (e.g. medium → small downgrade) |
+| `ChaseAndShootSettings` | Serializable per-prefab overrides for chase/shoot slime tuning |
+| `SlimeTierLinks` | Prefab graph for one-tier-up, one-tier-down, pickup piece, and pickup remainder |
+| `SlimeTierInteractions` | Generic tier split/downgrade handler driven by `SlimeTierLinks` |
+| `SlimeCombinationController` | Tier-1 seek/blink/combine behavior that spawns the linked tier-up prefab |
+| `SlimeSpawnHelper` | Central spawn path for slimes; future composition data should pass through here |
+| `SlimeComposition` | Placeholder for v0.6 type slots, so tier-N slimes can remember which slime types combined |
+| `IEnemyPickupHandler` | Optional custom pickup (e.g. tier split) |
+| `IEnemyHitHandler` | Optional custom thrown-hit (e.g. tier downgrade) |
 | `InvulnerabilityController` | Shared i-frames + flash visual |
+
+## Numeric tiers
+
+`EnemyTier` uses explicit numeric values (`Tier1 = 1`, `Tier2 = 2`, `Tier3 = 3`). Use the enum when tier is identity, and cast to `int` only for tier arithmetic like slot count, one-tier downgrade, or one-tier upgrade checks. Avoid size names in code so new tiers remain numerically extensible.
 
 ## Configuring an enemy
 
@@ -146,7 +168,7 @@ Behaviors should stay tier-agnostic when possible. Push tier-specific rules into
 
 Edit `Assets/Config/Enemy/<Type>Config.asset`. Duplicate for new enemy types.
 
-### Per-prefab overrides (double slime)
+### Per-prefab overrides (shooting slimes)
 
 On `EnemyBrain`:
 
@@ -162,11 +184,16 @@ On `EnemyBrain`:
 2. Assign via `[SerializeReference]` on `EnemyBrain` (editor script or prefab).
 3. Reuse or duplicate an `EnemyConfig` asset.
 
-### New enemy type with special pickup/hit rules
+### New tier with pickup/hit rules
 
-1. Above steps, plus `Interactions/MyEnemyInteractions.cs` implementing handler interfaces.
-2. Add component to prefab.
-3. Wire any prefab refs on the handler (e.g. remainder spawn prefab).
+1. Add the next numeric value to `EnemyTier`.
+2. Duplicate the previous tier shell prefab and config.
+3. Wire `SlimeTierLinks` with `tierDownPrefab`, optional `tierUpPrefab`, `pickupPiecePrefab`, and `pickupRemainderPrefab`.
+4. Use `SlimeTierInteractions` for pickup/hit behavior unless the tier needs a nonstandard rule.
+
+### Slime types later
+
+`SlimeTierLinks` should continue to point at tier shell prefabs, not every color/type combination. When v0.6 adds slime types, `SlimeComposition` should carry the ordered type slots and `SlimeSpawnHelper` should apply merged/split composition data after instantiating the tier shell prefab.
 
 ### More complex enemies later
 
@@ -182,6 +209,7 @@ On `EnemyBrain`:
 | `*Config` | ScriptableObject tuning assets and their C# type |
 | `*Settings` | Serializable Inspector override blocks |
 | `*Interactions` | Handler components for pickup/throw exceptions |
+| `*Links` | Prefab graph data for tier transitions |
 
 ## Related docs
 

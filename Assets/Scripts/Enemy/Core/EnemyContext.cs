@@ -10,11 +10,13 @@ public class EnemyContext
         Transform = enemy.transform;
         PlayerTransform = playerTransform;
         Tier = enemy.Tier;
+        Combination = enemy.GetComponent<SlimeCombinationController>();
     }
 
     public Transform Transform { get; }
     public Transform PlayerTransform { get; }
     public EnemyTier Tier { get; }
+    public SlimeCombinationController Combination { get; }
 
     public float DistanceToPlayer =>
         PlayerTransform != null
