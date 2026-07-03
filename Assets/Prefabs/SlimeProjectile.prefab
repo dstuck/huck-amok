@@ -177,6 +177,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   splatDuration: 0.3
+  splatSounds:
+  - {fileID: 8300000, guid: 1c674475c39a440c2b1c4f4b5b9760f2, type: 3}
+  - {fileID: 8300000, guid: 77ce89febf76f43bcb48d2e44ca4800e, type: 3}
+  - {fileID: 8300000, guid: 9bb01cdd252d540a796939725cf208f2, type: 3}
 --- !u!114 &8988992794506010343
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -3,5 +3,7 @@ public enum SfxCategory
     Default,
     Shoot,
     Hurt,
-    Pickup
+    EnemyHit,
+    Pickup,
+    Splat
 }

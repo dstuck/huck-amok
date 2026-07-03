@@ -9,7 +9,9 @@ public class SoundFXManager : MonoBehaviour
     [SerializeField] private int maxConcurrentVoices = 10;
     [SerializeField] private int maxShootVoices = 4;
     [SerializeField] private int maxHurtVoices = 2;
+    [SerializeField] private int maxEnemyHitVoices = 3;
     [SerializeField] private int maxPickupVoices = 2;
+    [SerializeField] private int maxSplatVoices = 4;
 
     private readonly List<ActiveVoice> activeVoices = new();
 
@@ -104,7 +106,9 @@ public class SoundFXManager : MonoBehaviour
         {
             SfxCategory.Shoot => maxShootVoices,
             SfxCategory.Hurt => maxHurtVoices,
+            SfxCategory.EnemyHit => maxEnemyHitVoices,
             SfxCategory.Pickup => maxPickupVoices,
+            SfxCategory.Splat => maxSplatVoices,
             _ => maxConcurrentVoices
         };
     }

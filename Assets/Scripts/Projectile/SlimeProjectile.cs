@@ -10,6 +10,7 @@ public class SlimeProjectile : MonoBehaviour
     }
 
     [SerializeField] private float splatDuration = 0.3f;
+    [SerializeField] private AudioClip[] splatSounds;
 
     private Rigidbody2D rb2d;
     private BoxCollider2D boxCollider;
@@ -39,11 +40,7 @@ public class SlimeProjectile : MonoBehaviour
 
     private void Awake()
     {
-        rb2d = GetComponent<Rigidbody2D>();
-        rb2d.bodyType = RigidbodyType2D.Kinematic;
-        rb2d.gravityScale = 0f;
-        rb2d.collisionDetectionMode = CollisionDetectionMode2D.Continuous;
-        rb2d.interpolation = RigidbodyInterpolation2D.Interpolate;
+        rb2d = KinematicBody2D.Configure(gameObject);
 
         boxCollider = GetComponent<BoxCollider2D>();
         boxCollider.isTrigger = true;
@@ -84,7 +81,7 @@ public class SlimeProjectile : MonoBehaviour
         if (phase != Phase.Flying)
             return;
 
-        rb2d.MovePosition(start + move);
+        KinematicBody2D.MoveBy(rb2d, move);
         distanceTraveled += step;
 
         if (distanceTraveled >= maxRange)
@@ -124,14 +121,20 @@ public class SlimeProjectile : MonoBehaviour
 
         phase = Phase.Splatting;
         splatTimer = splatDuration;
+
+        if (!hasDamagedPlayer)
+            PlaySplatSound();
     }
 
-    private void OnTriggerEnter2D(Collider2D other)
+    private void PlaySplatSound()
     {
-        if (phase == Phase.Splatting)
+        if (splatSounds == null || splatSounds.Length == 0 || SoundFXManager.Instance == null)
             return;
 
-        ProcessHit(other);
+        SoundFXManager.Instance.PlayRandomSoundFXClip(
+            splatSounds,
+            transform,
+            category: SfxCategory.Splat);
     }
 
     private bool ProcessHit(Collider2D other)
