@@ -4,10 +4,8 @@ Shader "HuckAmok/SlimeRecolor"
     {
         _MainTex ("Sprite Texture", 2D) = "white" {}
         _Color ("Tint", Color) = (1,1,1,1)
-        _ColorA ("Primary Color", Color) = (0.2, 0.8, 0.2, 1)
-        _ColorB ("Secondary Color", Color) = (0.2, 0.8, 0.2, 1)
-        _UseGradient ("Use Gradient", Float) = 0
-        _GradientAxis ("Gradient Axis", Vector) = (0, 1, 0, 0)
+        _ColorCount ("Color Count", Float) = 1
+        _Colors ("Slot Colors", Color) = (0.2, 0.8, 0.2, 1)
     }
 
     SubShader
@@ -24,7 +22,7 @@ Shader "HuckAmok/SlimeRecolor"
         Cull Off
         Lighting Off
         ZWrite Off
-        Blend One OneMinusSrcAlpha
+        Blend SrcAlpha OneMinusSrcAlpha
 
         Pass
         {
@@ -46,16 +44,20 @@ Shader "HuckAmok/SlimeRecolor"
                 float4 vertex : SV_POSITION;
                 fixed4 color : COLOR;
                 float2 texcoord : TEXCOORD0;
-                float3 worldPos : TEXCOORD1;
             };
 
             sampler2D _MainTex;
             float4 _MainTex_ST;
             fixed4 _Color;
-            fixed4 _ColorA;
-            fixed4 _ColorB;
-            float _UseGradient;
-            float4 _GradientAxis;
+            float _ColorCount;
+            fixed4 _Colors[3];
+
+            // Sampled from sprSlimeIdle.png body tones.
+            static const float3 SrcHighlight = float3(0.58, 0.88, 0.12);
+            static const float3 SrcBody = float3(0.18, 0.62, 0.11);
+            static const float3 SrcShadow = float3(0.04, 0.24, 0.04);
+            static const float3 ToneRatioHi = SrcHighlight / SrcBody;
+            static const float3 ToneRatioLo = SrcShadow / SrcBody;
 
             v2f vert(appdata_t input)
             {
@@ -63,11 +65,50 @@ Shader "HuckAmok/SlimeRecolor"
                 output.vertex = UnityObjectToClipPos(input.vertex);
                 output.texcoord = TRANSFORM_TEX(input.texcoord, _MainTex);
                 output.color = input.color * _Color;
-                output.worldPos = mul(unity_ObjectToWorld, input.vertex).xyz;
                 return output;
             }
 
-            fixed4 SampleRecolored(fixed4 texColor, float gradientT)
+            fixed3 PickSlotColor(float bandT)
+            {
+                int count = max(1, (int)round(_ColorCount));
+                if (count <= 1)
+                    return _Colors[0].rgb;
+
+                int band = min((int)floor(bandT * count), count - 1);
+                return _Colors[band].rgb;
+            }
+
+            int ClassifySourceTone(float3 rgb)
+            {
+                float3 dHi = rgb - SrcHighlight;
+                float3 dMid = rgb - SrcBody;
+                float3 dLo = rgb - SrcShadow;
+
+                float distHi = dot(dHi, dHi);
+                float distMid = dot(dMid, dMid);
+                float distLo = dot(dLo, dLo);
+
+                if (distHi <= distMid && distHi <= distLo)
+                    return 0;
+
+                if (distLo <= distMid)
+                    return 2;
+
+                return 1;
+            }
+
+            fixed3 BuildTargetTone(fixed3 targetColor, int tone)
+            {
+                if (tone == 0)
+                    return saturate(targetColor * ToneRatioHi);
+
+                if (tone == 2)
+                    return targetColor * ToneRatioLo;
+
+                return targetColor;
+            }
+
+            fixed4 SampleRecolored(fixed4 texColor, float bandT)
             {
                 if (texColor.a <= 0.001)
                     return fixed4(0, 0, 0, 0);
@@ -76,17 +117,12 @@ Shader "HuckAmok/SlimeRecolor"
                 float strongestNonGreen = max(texColor.r, texColor.b);
                 float greenDominance = texColor.g - strongestNonGreen;
 
-                // Preserve outlines, transparent matte pixels, and any non-green detail.
-                if (luminance < 0.08 || greenDominance < 0.04)
+                if (luminance < 0.06 || greenDominance < 0.03)
                     return texColor;
 
-                float greenMask = saturate(greenDominance * 2.5);
-                float shade = saturate(luminance * 0.75 + greenMask * 0.25);
-
-                fixed3 targetColor = lerp(_ColorA.rgb, _ColorB.rgb, gradientT);
-                fixed3 highlight = targetColor * 1.25;
-                fixed3 shadow = targetColor * 0.55;
-                fixed3 recolored = lerp(shadow, highlight, shade);
+                fixed3 targetColor = PickSlotColor(bandT);
+                int tone = ClassifySourceTone(texColor.rgb);
+                fixed3 recolored = BuildTargetTone(targetColor, tone);
 
                 return fixed4(recolored, texColor.a);
             }
@@ -94,17 +130,9 @@ Shader "HuckAmok/SlimeRecolor"
             fixed4 frag(v2f input) : SV_Target
             {
                 fixed4 texColor = tex2D(_MainTex, input.texcoord);
-                float gradientT = 0;
-
-                if (_UseGradient > 0.5)
-                {
-                    float3 axis = normalize(_GradientAxis.xyz + float3(0.0001, 0.0001, 0.0001));
-                    gradientT = saturate(dot(input.worldPos, axis) * 4.0 + 0.5);
-                }
-
-                fixed4 recolored = SampleRecolored(texColor, gradientT);
+                float bandT = saturate(input.texcoord.y);
+                fixed4 recolored = SampleRecolored(texColor, bandT);
                 recolored *= input.color;
-                recolored.rgb *= recolored.a;
                 return recolored;
             }
             ENDCG

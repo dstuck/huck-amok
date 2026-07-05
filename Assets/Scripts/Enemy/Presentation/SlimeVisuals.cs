@@ -3,16 +3,17 @@ using UnityEngine;
 [RequireComponent(typeof(SpriteRenderer))]
 public class SlimeVisuals : MonoBehaviour
 {
-    private static readonly int ColorAId = Shader.PropertyToID("_ColorA");
-    private static readonly int ColorBId = Shader.PropertyToID("_ColorB");
-    private static readonly int UseGradientId = Shader.PropertyToID("_UseGradient");
-    private static readonly int GradientAxisId = Shader.PropertyToID("_GradientAxis");
+    private const int MaxSlotColors = 3;
+
+    private static readonly int ColorCountId = Shader.PropertyToID("_ColorCount");
+    private static readonly int ColorsId = Shader.PropertyToID("_Colors");
 
     [SerializeField] private SlimeTypeDatabase typeDatabase;
     [SerializeField] private Material recolorMaterial;
 
     private SpriteRenderer spriteRenderer;
     private MaterialPropertyBlock propertyBlock;
+    private readonly Vector4[] slotColors = new Vector4[MaxSlotColors];
 
     private void Awake()
     {
@@ -53,26 +54,28 @@ public class SlimeVisuals : MonoBehaviour
         if (slots == null || slots.Length == 0)
             slots = new[] { SlimeType.Basic };
 
-        Color colorA = typeDatabase.GetColor(slots[0]);
-        Color colorB = slots.Length > 1
-            ? typeDatabase.GetColor(slots[slots.Length - 1])
-            : colorA;
+        int count = Mathf.Min(slots.Length, MaxSlotColors);
+        for (int i = 0; i < MaxSlotColors; i++)
+        {
+            slotColors[i] = i < count
+                ? typeDatabase.GetColor(slots[i])
+                : Color.white;
+        }
 
-        ApplyColors(colorA, colorB, slots.Length > 1);
+        ApplySlotColors(count);
     }
 
     public void ApplySolidColor(Color color)
     {
-        ApplyColors(color, color, useGradient: false);
+        slotColors[0] = color;
+        ApplySlotColors(1);
     }
 
-    private void ApplyColors(Color colorA, Color colorB, bool useGradient)
+    private void ApplySlotColors(int count)
     {
         spriteRenderer.GetPropertyBlock(propertyBlock);
-        propertyBlock.SetColor(ColorAId, colorA);
-        propertyBlock.SetColor(ColorBId, colorB);
-        propertyBlock.SetFloat(UseGradientId, useGradient ? 1f : 0f);
-        propertyBlock.SetVector(GradientAxisId, new Vector4(0f, 1f, 0f, 0f));
+        propertyBlock.SetFloat(ColorCountId, count);
+        propertyBlock.SetVectorArray(ColorsId, slotColors);
         spriteRenderer.SetPropertyBlock(propertyBlock);
     }
 }

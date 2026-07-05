@@ -13,4 +13,4 @@ MonoBehaviour:
   m_Name: StickySlimeType
   m_EditorClassIdentifier: 
   type: 1
-  displayColor: {r: 1, g: 0.55, b: 0.1, a: 1}
+  displayColor: {r: 1, g: 0.45, b: 0.05, a: 1}

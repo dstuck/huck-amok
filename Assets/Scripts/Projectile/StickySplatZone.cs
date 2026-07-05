@@ -4,9 +4,8 @@ using UnityEngine;
 [RequireComponent(typeof(SpriteRenderer), typeof(BoxCollider2D))]
 public class StickySplatZone : MonoBehaviour
 {
-    private static readonly int ColorAId = Shader.PropertyToID("_ColorA");
-    private static readonly int ColorBId = Shader.PropertyToID("_ColorB");
-    private static readonly int UseGradientId = Shader.PropertyToID("_UseGradient");
+    private static readonly int ColorCountId = Shader.PropertyToID("_ColorCount");
+    private static readonly int ColorsId = Shader.PropertyToID("_Colors");
 
     private readonly HashSet<PlayerMovementSlowdown> overlappingPlayers = new HashSet<PlayerMovementSlowdown>();
     private float slowMultiplier = 1f;
@@ -60,9 +59,8 @@ public class StickySplatZone : MonoBehaviour
         spriteRenderer.sortingOrder = sortingOrder;
 
         var propertyBlock = new MaterialPropertyBlock();
-        propertyBlock.SetColor(ColorAId, stickyColor);
-        propertyBlock.SetColor(ColorBId, stickyColor);
-        propertyBlock.SetFloat(UseGradientId, 0f);
+        propertyBlock.SetFloat(ColorCountId, 1f);
+        propertyBlock.SetVectorArray(ColorsId, new[] { (Vector4)stickyColor, (Vector4)Color.white, (Vector4)Color.white });
         spriteRenderer.SetPropertyBlock(propertyBlock);
 
         transform.localScale = Vector3.one * sizeScale;

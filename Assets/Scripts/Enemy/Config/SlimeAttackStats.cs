@@ -6,7 +6,7 @@ public readonly struct SlimeAttackStats
 {
     public const float StickySlowFactor = 0.75f;
     public const float StickySizeBonus = 0.08f;
-    public const float BaseSplatSize = 1f;
+    public const float BaseSplatSize = 1.35f;
     public const float BasicSplatDuration = 0.3f;
     public const float StickySplatDuration = 5f;
     public const float MultiShotSpreadDegrees = 20f;
