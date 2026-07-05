@@ -23,16 +23,17 @@ public class SlimeTierInteractions : MonoBehaviour, IEnemyPickupHandler, IEnemyH
             return false;
         }
 
-        SlimeComposition.SplitForPickup(composition, out var pieceComposition, out var remainderComposition);
+        var pieceSlots = SlimeComposition.SplitForPickupPiece(composition);
+        var remainderSlots = SlimeComposition.SplitForPickupRemainder(composition);
 
         var remainderPosition = (Vector2)enemy.transform.position + links.PickupRemainderOffset;
         SlimeSpawnHelper.Spawn(
             links.PickupRemainderPrefab,
             remainderPosition,
-            remainderComposition,
+            remainderSlots,
             beginInvulnerability: true);
 
-        var held = SlimeSpawnHelper.Spawn(links.PickupPiecePrefab, enemy.transform.position, pieceComposition);
+        var held = SlimeSpawnHelper.Spawn(links.PickupPiecePrefab, enemy.transform.position, pieceSlots);
         var heldEnemy = held != null ? held.GetComponent<Enemy>() : null;
 
         Destroy(enemy.gameObject);
@@ -51,11 +52,11 @@ public class SlimeTierInteractions : MonoBehaviour, IEnemyPickupHandler, IEnemyH
         if (links.TierDownPrefab == null)
             return false;
 
-        var downgradedComposition = SlimeComposition.SplitForHit(composition);
+        var downgradedSlots = SlimeComposition.SplitForHit(composition);
         SlimeSpawnHelper.Spawn(
             links.TierDownPrefab,
             targetEnemy.transform.position,
-            downgradedComposition,
+            downgradedSlots,
             beginInvulnerability: true);
 
         Destroy(targetEnemy.gameObject);

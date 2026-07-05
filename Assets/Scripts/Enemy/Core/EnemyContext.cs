@@ -43,7 +43,18 @@ public class EnemyContext
         enemy.StopMovement();
     }
 
-    public void SpawnProjectile(Vector2 direction, EnemyConfig config)
+    public SlimeComposition GetComposition()
+    {
+        return enemy.TryGetComponent<SlimeComposition>(out var composition)
+            ? composition
+            : null;
+    }
+
+    public void SpawnProjectile(
+        Vector2 direction,
+        EnemyConfig config,
+        SlimeAttackStats stats,
+        SlimeComposition composition)
     {
         if (config == null || config.projectilePrefab == null)
             return;
@@ -54,24 +65,12 @@ public class EnemyContext
             Quaternion.identity);
 
         if (projectile.TryGetComponent<SlimeProjectile>(out var slimeProjectile))
-        {
-            slimeProjectile.Initialize(direction.normalized, config.projectileSpeed, config.projectileMaxRange);
-        }
-
-        if (config.shootSounds != null && config.shootSounds.Length > 0 && SoundFXManager.Instance != null)
-        {
-            SoundFXManager.Instance.PlayRandomSoundFXClip(
-                config.shootSounds,
-                Transform,
-                category: SfxCategory.Shoot);
-        }
+            slimeProjectile.Initialize(stats, composition, direction.normalized, config.projectileSpeed, config.projectileMaxRange);
     }
 
     public void SetFlicker(bool enabled)
     {
         if (enemy.TryGetComponent<InvulnerabilityController>(out var invuln))
-        {
             invuln.SetFlickerOverride(enabled);
-        }
     }
 }
