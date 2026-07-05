@@ -44,8 +44,17 @@ and be held above the character. When thrown they should remain inactive while f
 
 0.6 Enemy types
 - [ ] Create slime attack types
-    - [ ] sticky shot
-    - [ ] multi shot
-    - [ ] trailing
+    - [ ] sticky shot (orange) - sticks around for 5s on splat and slows down player movement
+    - [ ] multi shot (purple) - shots out two projectiles at 20% angle
 - [ ] Refactor slime colors
+    - projectile and single slimes should be based on color type
+    - tier 2 and 3 slimes need to track their component types and combine their powers
+    - tier 2 and 3 need to mix the colors of the components somehow (either simple gradient or ideally a texturing effect that patterns them together)
 - [ ] Higher-tier slime colors set by components
+
+0.7 Levels
+- [ ] Add boundaries to game
+- [ ] Add background and objects
+- [ ] Fix camera size for webGL
+- [ ] On victory progress to harder level
+- [ ] On failure start at level 1
