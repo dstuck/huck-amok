@@ -176,8 +176,8 @@ public class SlimeCombinationController : MonoBehaviour, IEnemyCombineParticipan
         }
 
         Vector2 midpoint = ((Vector2)transform.position + (Vector2)other.transform.position) * 0.5f;
-        var combinedComposition = SlimeComposition.Merge(composition, other.composition);
-        SlimeSpawnHelper.Spawn(mergePrefab, midpoint, combinedComposition, beginInvulnerability: true);
+        var combinedSlots = SlimeComposition.MergeSlots(composition, other.composition);
+        SlimeSpawnHelper.Spawn(mergePrefab, midpoint, combinedSlots, beginInvulnerability: true);
 
         invulnerability?.SetFlickerOverride(false);
         other.invulnerability?.SetFlickerOverride(false);

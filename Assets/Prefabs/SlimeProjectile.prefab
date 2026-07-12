@@ -14,6 +14,7 @@ GameObject:
   - component: {fileID: 4304810399332146567}
   - component: {fileID: 1503636281157302760}
   - component: {fileID: 8988992794506010343}
+  - component: {fileID: 802060167276128054}
   m_Layer: 0
   m_Name: SlimeProjectile
   m_TagString: Untagged
@@ -176,11 +177,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f1b0033ec9e634e628d1e6444ac52a58, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  splatDuration: 0.3
   splatSounds:
   - {fileID: 8300000, guid: 1c674475c39a440c2b1c4f4b5b9760f2, type: 3}
   - {fileID: 8300000, guid: 77ce89febf76f43bcb48d2e44ca4800e, type: 3}
   - {fileID: 8300000, guid: 9bb01cdd252d540a796939725cf208f2, type: 3}
+  stickyPoolSprite: {fileID: 2594797223279092564, guid: 3f4d0a8b7d3a749d7a18cbcc46243aaf, type: 3}
+  typeDatabase: {fileID: 11400000, guid: aedf93bb341214c2e8c4442fca99680f, type: 2}
+  recolorMaterial: {fileID: 2100000, guid: bb82658c52f0948e5b459aa9a32d96ed, type: 2}
 --- !u!114 &8988992794506010343
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -202,3 +205,17 @@ MonoBehaviour:
   - 0.5
   - 0.25
   - 0.15
+--- !u!114 &802060167276128054
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5174344487228000109}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e545ee9dc3b19410b95acc063cc3c77f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  typeDatabase: {fileID: 11400000, guid: aedf93bb341214c2e8c4442fca99680f, type: 2}
+  recolorMaterial: {fileID: 2100000, guid: bb82658c52f0948e5b459aa9a32d96ed, type: 2}

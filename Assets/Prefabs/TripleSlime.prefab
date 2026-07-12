@@ -19,6 +19,8 @@ GameObject:
   - component: {fileID: 1658097207957553538}
   - component: {fileID: 8151390837941241702}
   - component: {fileID: 8802779579051291445}
+  - component: {fileID: 1106852977944657102}
+  - component: {fileID: 7975008279028468629}
   m_Layer: 0
   m_Name: TripleSlime
   m_TagString: Enemy
@@ -269,6 +271,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 757357f363d424cd78075bada7424ba5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  slots: 000000000000000000000000
 --- !u!114 &8151390837941241702
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -287,6 +290,12 @@ MonoBehaviour:
   pickupRemainderPrefab: {fileID: 5439509473600276826, guid: 7828fe53113274474aa3c7ee027cfb93, type: 3}
   pickupRemainderOffset: {x: 0.15, y: 0}
   canAutoCombine: 0
+  combineSettings:
+    seekRadius: 0.6
+    touchDistance: 0.09
+    decisionChance: 0.5
+    blinkDuration: 1
+  mergeRules: []
 --- !u!114 &8802779579051291445
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -297,5 +306,31 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 669fab7ba77214528ac69b7eee5a0bc6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &1106852977944657102
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5439509473600276826}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e545ee9dc3b19410b95acc063cc3c77f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  typeDatabase: {fileID: 11400000, guid: aedf93bb341214c2e8c4442fca99680f, type: 2}
+  recolorMaterial: {fileID: 2100000, guid: bb82658c52f0948e5b459aa9a32d96ed, type: 2}
+--- !u!114 &7975008279028468629
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5439509473600276826}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5a74528ba755e40718f3e49e459a1834, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 

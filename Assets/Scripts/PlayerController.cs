@@ -14,6 +14,8 @@ public class PlayerController : MonoBehaviour, InputSystem_Actions.IPlayerAction
 {
     [Header("Movement")]
     [SerializeField] private float moveSpeed = 1f;
+
+    private float movementSlowMultiplier = 1f;
     
     [Header("Pickup/Throw")]
     [SerializeField] private float pickupRange = 0.05f;
@@ -46,6 +48,11 @@ public class PlayerController : MonoBehaviour, InputSystem_Actions.IPlayerAction
     /// </summary>
     public Vector2 AnimationFacing =>
         moveInput.sqrMagnitude > 0.01f ? moveInput.normalized : GetDirectionVector(currentFacing);
+
+    public void SetMovementSlow(float multiplier)
+    {
+        movementSlowMultiplier = Mathf.Clamp(multiplier, 0.05f, 1f);
+    }
     
     private void Awake()
     {
@@ -117,7 +124,7 @@ public class PlayerController : MonoBehaviour, InputSystem_Actions.IPlayerAction
         if (moveInput.sqrMagnitude < 0.01f)
             return;
 
-        Vector2 movement = moveInput.normalized * moveSpeed * Time.fixedDeltaTime;
+        Vector2 movement = moveInput.normalized * moveSpeed * movementSlowMultiplier * Time.fixedDeltaTime;
         KinematicBody2D.MoveBy(rb2d, movement);
     }
     

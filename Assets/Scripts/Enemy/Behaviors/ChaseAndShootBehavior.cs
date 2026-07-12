@@ -65,7 +65,7 @@ public class ChaseAndShootBehavior : EnemyBehavior
                 if (phaseTimer <= 0f)
                 {
                     context.SetFlicker(false);
-                    context.SpawnProjectile(context.DirectionToPlayer, config);
+                    SlimeShootPattern.Fire(context, config, context.GetComposition());
                     phase = CombatPhase.Cooldown;
                     phaseTimer = config.shootCooldown;
                 }
